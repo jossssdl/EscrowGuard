@@ -1,0 +1,25 @@
+# Python compilado e intérprete
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+
+# Variables de entorno locales
+.env
+.env.local
+.env.development
+.env.production
+
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+*.workspace
+.DS_Store
