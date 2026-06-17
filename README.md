@@ -30,8 +30,8 @@ HACKATHON_BAND_OF_AGENTS/
 │   ├── .env.example                    # Plantilla de configuración de variables de entorno
 │   ├── requirements.txt                # Dependencias generales de la solución
 │   └── main.py                         # Punto de entrada de la aplicación y escucha de eventos (Dev 1)
-├── distribucion_equipo.md              # Distribución general de roles
-└── plan_de_implementacion.md           # Plan de implementación detallado del hackathon
+├── LICENSE                             # Licencia MIT de distribución
+└── README.md                           # Documentación principal del repositorio
 ```
 
 ---
