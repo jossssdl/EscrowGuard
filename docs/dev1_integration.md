@@ -1,18 +1,18 @@
-# Especificación Técnica de Integración y API (Dev 1)
+# Technical Specification for Integration and API (Dev 1)
 
 ## 🏢 Script Hunters - EscrowGuard
 
-Este documento detalla la especificación de integración técnica a cargo del **Dev 1**. Contempla la configuración de la API web con FastAPI, la conexión interactiva mediante el SDK de Band Pro y la articulación de la lógica de los agentes bajo el paradigma *Human-in-the-Loop* (HITL).
+This document details the technical integration specifications managed by **Dev 1**. It covers the configuration of the web API using FastAPI, the real-time interaction through the Band Pro SDK, and the orchestration of the agent logic under the Human-in-the-Loop (HITL) paradigm.
 
 ---
 
-## 🛠️ Arquitectura de la Solución
+## 🛠️ Solution Architecture
 
-El script principal `main.py` actúa como la pasarela central de comunicaciones de EscrowGuard, sirviendo a dos frentes principales:
+The main script `main.py` acts as the central communications gateway for EscrowGuard, serving two main interfaces:
 
 ```mermaid
 graph LR
-    subgraph Frontend (Simulador Web)
+    subgraph Frontend (Web Simulator)
         UI[Landing Page / UI]
     end
     
@@ -21,14 +21,14 @@ graph LR
         Listener[EscrowRoomListener]
     end
     
-    subgraph Sindicato de Agentes & Servicios
+    subgraph Agents Syndicate & Services
         LG[LangGraph Flow]
         Ext[Extractor PydanticAI]
         OS[OSINT CrewAI]
         Bank[Bank Mock Service]
     end
     
-    subgraph Plataforma Externa
+    subgraph External Platform
         Band[Band Pro SDK / Chat Room]
     end
 
@@ -43,13 +43,13 @@ graph LR
 
 ---
 
-## 🌐 Endpoints de la API de Simulación (FastAPI)
+## 🌐 Simulation API Endpoints (FastAPI)
 
-Para permitir que el simulador frontend envíe transacciones y visualice las transiciones del grafo de LangGraph en tiempo real, se define el siguiente endpoint:
+To allow the frontend simulator to trigger transactions and visualize the LangGraph transitions in real time, the following endpoints are defined:
 
-### 📥 1. Simular Flujo de Custodia (`POST /api/simulate`)
-* **Descripción:** Recibe la información simulada de un pasaporte (o un payload que represente los datos extraídos de un documento) e inicia el grafo orquestador de LangGraph.
-* **Cuerpo de la Petición (JSON):**
+### 📥 1. Simulate Escrow Flow (`POST /api/simulate`)
+* **Description:** Receives the simulated passport metadata (or a payload representing extracted document data) and triggers the LangGraph orchestrator.
+* **Request Body (JSON):**
   ```json
   {
     "transaction_id": "ESC-88741B",
@@ -60,63 +60,88 @@ Para permitir que el simulador frontend envíe transacciones y visualice las tra
       "numero_documento": "MX-998877",
       "nacionalidad": "MEXICANA",
       "tipo_documento": "Pasaporte"
-    }
+    },
+    "archivo_entrada": "pasaporte_sospechoso.pdf"
   }
   ```
-* **Respuesta Exitosa (200 OK):**
+* **Success Response (200 OK):**
   ```json
   {
     "status": "success",
-    "current_state": "SANCTION_FLAGGED",
-    "message": "Alerta de cumplimiento detectada. El flujo requiere aprobación humana.",
-    "transaction_details": {
-      "transaction_id": "ESC-88741B",
-      "monto_retenido": 5000000.00,
-      "discrepancia_detectada": true
+    "transaction_id": "ESC-88741B",
+    "estado_final": "SANCTION_FLAGGED",
+    "logs": [
+      "Iniciando análisis de documento y extracción...",
+      "Leyendo documento: pasaporte_sospechoso.pdf",
+      "Datos extraídos con éxito: JUAN PEREZ",
+      "Solicitando retención preventiva de fondos al banco...",
+      "Fondos bloqueados. Transacción ID bancario: ESC-88741B",
+      "Iniciando cruce de información en listas de control OFAC y OSINT...",
+      "Cruce de listas finalizado.",
+      "⚠️ TRANSACCIÓN BLOQUEADA PREVENTIVAMENTE: Coincidencia potencial en lista de sanciones.",
+      "Pausando ejecución de agentes. Esperando revisión interactiva por Oficial de Cumplimiento (DPO)."
+    ],
+    "comprador": {
+      "nombre_completo": "JUAN PEREZ",
+      "fecha_nacimiento": "1980-05-15",
+      "numero_documento": "MX-998877",
+      "nacionalidad": "MEXICANA",
+      "tipo_documento": "Pasaporte"
+    },
+    "osint": {
+      "tiene_alerta": true,
+      "sancion_data": {
+        "nombre_completo": "JUAN PEREZ",
+        "fecha_nacimiento": "1975-04-12",
+        "nacionalidad": "MEXICANA",
+        "motivo": "Lavado de Dinero - Cartel de la Frontera",
+        "gravedad": "ALTA"
+      },
+      "reporte_markdown": "### 🔍 Reporte de Investigación OSINT: JUAN PEREZ..."
     }
   }
   ```
 
 ---
 
-## 💬 Integración con Band Pro SDK
+## 💬 Band Pro SDK Integration
 
-La interacción en tiempo real en la sala de chat del hackathon se gestiona heredando del listener base del SDK.
+Real-time interaction inside the hackathon chat room is managed by extending the base listener class from the SDK.
 
-### Clase `EscrowRoomListener(RoomListener)`
-Este módulo escucha los eventos del canal y realiza la siguiente secuencia de eventos al detectar un archivo PDF:
+### Class `EscrowRoomListener(RoomListener)`
+This module listens for incoming channel events and executes the following logic upon detecting a PDF attachment:
 
-1. **Carga y Lectura del PDF:** Al detectar un adjunto en `message.attachments`, el listener descarga el archivo de forma temporal o simula su contenido si es una ejecución de prueba.
-2. **Invocación del Agente Extractor:** Pasa el documento al agente extractor de PydanticAI para obtener la estructura JSON validada.
-3. **Bloqueo Preventivo de Fondos:** Invoca el servicio del banco para realizar la retención en garantía e informa a la sala del identificador de custodia.
-4. **Ejecución OSINT e Investigación OFAC:** Dispara al agente investigador para validar el nombre e identificar coincidencias en la base de datos simulada de la OFAC.
-5. **Evaluación en LangGraph:** Ejecuta el grafo de estados. Si hay coincidencia de nombres con discrepancia en fecha de nacimiento, el estado transiciona a `SANCTION_FLAGGED`.
-6. **HITL (Human-in-the-Loop):** El listener suspende el estado del grafo y emite un mensaje estructurado en Markdown al canal solicitando acción del oficial de cumplimiento.
-7. **Resolución de Alerta:** Si un oficial de cumplimiento escribe `APROBAR` en el chat:
-   - Se reanuda el grafo de LangGraph.
-   - El estado de la transacción cambia a `APPROVED`.
-   - Se invoca el método de liberación de fondos en el servicio bancario.
-   - Se notifica el éxito de la transacción a la sala.
+1. **PDF Detection and Loading:** When a PDF attachment is detected in `message.attachments`, the listener downloads the file temporarily or passes its filename to the state machine for simulation.
+2. **Extractor Agent Invocation:** Passes the file metadata to the PydanticAI extractor agent to retrieve the structured buyer schema.
+3. **Preventive Escrow Hold:** Triggers the mock bank service to block the transaction amount and announces the escrow ID to the room.
+4. **OSINT and OFAC Search:** Runs the investigator agent to crosscheck the buyer's name against the simulated OFAC sanctions database.
+5. **LangGraph Evaluation:** Executes the state graph. If the buyer's name matches a record but birthdates differ, the state transitions to `SANCTION_FLAGGED`.
+6. **HITL (Human-in-the-Loop) Interruption:** The listener pauses execution, caches the transaction ID, and broadcasts a markdown message to the room requesting human action.
+7. **Alert Resolution:** If the Compliance Officer (DPO) types `APROBAR` (approve) or `RECHAZAR` (reject) in the chat:
+   - The state machine resumes.
+   - The transaction state is updated to `APPROVED` or `REJECTED`.
+   - The mock bank service is instructed to release or refund the escrowed funds.
+   - The final status is reported back to the room.
 
 ---
 
-## ⚙️ Variables de Entorno Requeridas (`.env`)
+## ⚙️ Required Environment Variables (`.env`)
 
-Para la correcta ejecución del backend y su integración, se deben configurar las siguientes variables de entorno en el archivo `.env` del directorio `escrow-guard/`:
+To run the backend service locally, the following environment variables must be defined in the `escrow-guard/.env` file:
 
 ```bash
-# Configuración del Servidor API
+# API Server Settings
 PORT=8000
 HOST=0.0.0.0
 
-# SDK de Band Pro
-BAND_API_KEY=tu_api_key_de_band_pro
-BAND_ROOM_ID=tu_room_id_de_la_sala
+# Band Pro SDK Configs
+BAND_API_KEY=your_band_api_key_here
+BAND_ROOM_ID=your_room_id_here
 
-# Proveedores de Modelos de Lenguaje (LLM)
-OPENAI_API_KEY=tu_openai_api_key
-GEMINI_API_KEY=tu_gemini_api_key
+# LLM Providers (Required by agents)
+OPENAI_API_KEY=your_openai_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 
-# Configuración de Entorno
+# Environment Settings
 ENVIRONMENT=development
 ```

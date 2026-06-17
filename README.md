@@ -1,52 +1,49 @@
-# EscrowGuard - Sistema Multiagente de Cumplimiento Normativo en Garantías
+# EscrowGuard - Multi-Agent Compliance System for High-Value Escrows
 
-## 🏢 Script Hunters - Proyecto de Hackathon (Band of Agents)
+## 🏢 Script Hunters - Hackathon Project (Band of Agents)
 
-EscrowGuard es una plataforma multiagente diseñada para mitigar y resolver la fricción operativa ocasionada por los falsos positivos en verificaciones de cumplimiento normativo (OFAC, PEP y prevención de lavado de dinero) en transacciones financieras de custodia y garantía (_Escrow_) de alto valor.
+EscrowGuard is a multi-agent platform designed to mitigate and resolve the operational friction caused by false positives in regulatory compliance checks (OFAC, PEP, and Anti-Money Laundering) in high-value escrow financial transactions.
 
-Este repositorio contiene la estructura base para el desarrollo del proyecto, enfocándose en la integración de la plataforma, la API REST de simulación y el SDK de chat colaborativo correspondientes a la sección de **Dev 1 (Integrador de Plataforma, API y SDK)**.
+This repository contains the base structure for the development of the project, focusing on platform integration, the simulation REST API, and the collaborative chat SDK corresponding to the **Dev 1 (Platform, API, and SDK Integrator)** section.
 
 ---
 
-## 📁 Estructura del Directorio del Proyecto
+## 📁 Project Directory Structure
 
-A continuación se detalla la organización de carpetas del proyecto y la función de cada una de ellas dentro del ecosistema de EscrowGuard:
+The organization of the project folders and the function of each within the EscrowGuard ecosystem are detailed below:
 
 ```text
 HACKATHON_BAND_OF_AGENTS/
-├── docs/                               # Documentación técnica del proyecto
-│   └── dev1_integration.md             # Especificación técnica de integración y API (Dev 1)
-├── escrow-guard/                       # Directorio raíz del código de la aplicación
-│   ├── agents/                         # Sindicato de agentes inteligentes
+├── docs/                               # Technical documentation of the project
+│   └── dev1_integration.md             # Integration technical specification and API (Dev 1)
+├── escrow-guard/                       # Root directory of the application code
+│   ├── agents/                         # Syndicate of intelligent agents
 │   │   ├── __init__.py
-│   │   ├── extractor.py                # Agente Extractor (PydanticAI - Dev 3)
-│   │   ├── osint.py                    # Agente OSINT / Investigador (CrewAI - Dev 4)
-│   │   └── escrow.py                   # Grafo de Estados (LangGraph - Dev 5)
-│   ├── services/                       # Servicios de simulación y mocks (Dev 2)
+│   │   ├── extractor.py                # Extractor Agent (PydanticAI - Dev 3)
+│   │   ├── osint.py                    # OSINT / Investigator Agent (CrewAI - Dev 4)
+│   │   └── escrow.py                   # State Graph (LangGraph - Dev 5)
+│   ├── services/                       # Simulation services and mocks (Dev 2)
 │   │   ├── __init__.py
-│   │   ├── bank_mock.py                # Mock del servicio de depósito bancario
-│   │   └── sanction_mock.py            # Mock de base de datos de sanciones OFAC
-│   ├── mock_docs/                      # Documentos de prueba en formato PDF (Dev 2)
-│   ├── .env.example                    # Plantilla de configuración de variables de entorno
-│   ├── requirements.txt                # Dependencias generales de la solución
-│   └── main.py                         # Punto de entrada de la aplicación y escucha de eventos (Dev 1)
-├── LICENSE                             # Licencia MIT de distribución
-└── README.md                           # Documentación principal del repositorio
+│   │   ├── bank_mock.py                # Escrow bank mock service
+│   │   └── sanction_mock.py            # OFAC sanctions database mock
+│   ├── mock_docs/                      # Sample PDF test documents (Dev 2)
+│   ├── .env.example                    # Template for environment variables
+│   ├── requirements.txt                # Core dependencies of the solution
+│   └── main.py                         # Application entry point and event listener (Dev 1)
+├── LICENSE                             # MIT Distribution License
+└── README.md                           # Main repository documentation
 ```
 
 ---
 
-## 👤 Responsabilidades y Entregables del Dev 1
+## 👤 Responsibilities and Deliverables of Dev 1
 
-El **Dev 1** actúa como el núcleo de integración del proyecto, conectando los módulos de agentes e infraestructura simulada con las plataformas externas (Band Pro SDK) y la interfaz de usuario (FastAPI).
+**Dev 1** acts as the integration core of the project, connecting the agent modules and simulated infrastructure with external platforms (Band Pro SDK) and the user interface (FastAPI).
 
-### 🛠️ Tareas Principales
-
-1. **Configuración del Entorno y Base:** Establecer el archivo de dependencias `requirements.txt` y definir el archivo de configuración `.env.example`.
-2. **Desarrollo de `main.py`:**
-   - Configurar la API local con FastAPI, habilitando el intercambio de recursos de origen cruzado (CORS) para interactuar con la Landing Page y el simulador interactivo.
-   - Diseñar el endpoint POST `/api/simulate` para invocar el grafo de LangGraph de manera síncrona o asíncrona.
-   - Implementar el listener de chat mediante la clase `EscrowRoomListener(RoomListener)` de `band-sdk`.
-   - Coordinar el flujo interactivo de aprobación humana (_Human-in-the-Loop_) reaccionando a las palabras clave del Oficial de Cumplimiento (DPO) en la sala de Band Pro.
-
----
+### 🛠️ Key Tasks
+1. **Environment and Base Setup:** Establish the `requirements.txt` dependency file and define the `.env.example` configuration template.
+2. **Development of `main.py`:**
+   - Configure the local API using FastAPI, enabling Cross-Origin Resource Sharing (CORS) to interact with the Landing Page and the interactive simulator.
+   - Design the `POST /api/simulate` endpoint to invoke the LangGraph state machine synchronously or asynchronously.
+   - Implement the chat listener using the `EscrowRoomListener(RoomListener)` class from the `band-sdk` package.
+   - Coordinate the interactive Human-in-the-Loop (HITL) approval flow by reacting to key input ("APROBAR" / "RECHAZAR") from the Compliance Officer (DPO) in the Band Pro room.
