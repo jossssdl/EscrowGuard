@@ -5,7 +5,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
 logger = logging.getLogger("API_PLD_Mexico")
 
-# Base de datos simulada con instituciones mexicanas (UIF, SAT)
+# Base de datos simulada con instituciones mexicanas (UIF, SAT) y listas internacionales (OFAC)
 # Se incluye un perfil ficticio para detonar el falso positivo con el PDF de la demo
 LISTAS_RIESGO_MEXICO = {
     "JOSÉ CRISTIAN AVILA DIRCIO": {
@@ -13,16 +13,37 @@ LISTAS_RIESGO_MEXICO = {
         "lista": "Lista de Personas Bloqueadas",
         "motivo": "Persona Expuesta Politicamente (PEP) - Operaciones con Recursos de Procedencia Ilicita",
         "nivel_riesgo": "CRITICO",
-        "accion_requerida": "CONGELAR_CUENTAS_AVISO_CNBV"
+        "accion_requerida": "CONGELAR_CUENTAS_AVISO_CNBV",
+        "fecha_nacimiento": "1985-08-20",
+        "nacionalidad": "MEXICANA",
+        "gravedad": "CRITICO"
     },
     "COMERCIALIZADORA FANTASMA SA DE CV": {
         "institucion": "SAT",
         "lista": "Articulo 69-B CFF (EFOS)",
         "motivo": "Facturacion de operaciones simuladas",
         "nivel_riesgo": "ALTO",
-        "accion_requerida": "REVISION_MANUAL_REQUERIDA"
+        "accion_requerida": "REVISION_MANUAL_REQUERIDA",
+        "fecha_nacimiento": "N/A",
+        "nacionalidad": "MEXICANA",
+        "gravedad": "ALTO"
+    },
+    "JUAN PEREZ": {
+        "institucion": "OFAC (Office of Foreign Assets Control)",
+        "lista": "Specially Designated Nationals (SDN)",
+        "motivo": "Lavado de Dinero - Cartel de la frontera",
+        "nivel_riesgo": "CRITICO",
+        "accion_requerida": "CONGELAR_CUENTAS_INMEDIATO",
+        "fecha_nacimiento": "1975-04-12",
+        "nacionalidad": "MEXICANA",
+        "gravedad": "CRITICO"
     }
 }
+
+import unicodedata
+
+def eliminar_acentos(texto: str) -> str:
+    return "".join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn')
 
 def consultar_listas_nacionales(nombre_entidad: str) -> dict:
     logger.info(f"Iniciando cruce de datos con listas UIF y SAT para: '{nombre_entidad}'")
@@ -30,11 +51,11 @@ def consultar_listas_nacionales(nombre_entidad: str) -> dict:
     # Latencia para simular la consulta a los servidores gubernamentales
     time.sleep(2.0)
     
-    nombre_normalizado = nombre_entidad.strip().upper()
+    nombre_normalizado = eliminar_acentos(nombre_entidad.strip().upper())
     
     # Caso 1: Coincidencia exacta (Bloqueo y reporte)
     if nombre_normalizado in LISTAS_RIESGO_MEXICO:
-        logger.warning(f"ALERTA: Entidad localizada en listas negras nacionales: {nombre_normalizado}")
+        logger.warning(f"ALERTA: Entidad localizada en listas negras nacionales/internacionales: {nombre_normalizado}")
         return {
             "estado_pld": "BLOQUEADO",
             "tipo_alerta": "COINCIDENCIA_EXACTA_UIF_SAT",
@@ -43,7 +64,6 @@ def consultar_listas_nacionales(nombre_entidad: str) -> dict:
         
     # Caso 2: Falso Positivo (Homonimia para la demostracion)
     for nombre_sancionado, datos in LISTAS_RIESGO_MEXICO.items():
-        # Extraemos los ultimos dos elementos del nombre (los apellidos) para buscar similitudes
         partes_nombre_malo = nombre_sancionado.split()
         if len(partes_nombre_malo) >= 2:
             apellido_sancionado = partes_nombre_malo[-2] + " " + partes_nombre_malo[-1]
@@ -68,3 +88,34 @@ def consultar_listas_nacionales(nombre_entidad: str) -> dict:
         "tipo_alerta": "NINGUNA",
         "detalles_institucion": None
     }
+
+class SanctionService:
+    """
+    Clase que encapsula el servicio de control y validación de personas en listas de sanciones.
+    """
+    def __init__(self):
+        pass
+
+    def consultar_nombre(self, nombre_completo: str) -> dict:
+        """
+        Consulta listas nacionales e internacionales simuladas y retorna el diccionario de estado de prevención de lavado de dinero.
+        """
+        return consultar_listas_nacionales(nombre_completo)
+
+    def verificar_persona(self, nombre_completo: str) -> dict:
+        """
+        Verifica si una persona está en las listas de sanciones. Retorna los detalles de la sanción o None si está limpio.
+        """
+        nombre_normalizado = eliminar_acentos(nombre_completo.strip().upper())
+        if nombre_normalizado in LISTAS_RIESGO_MEXICO:
+            return LISTAS_RIESGO_MEXICO[nombre_normalizado]
+        
+        # También buscar si coincide como homónimo para retornar datos mock de la sanción simulada
+        for nombre_sancionado, datos in LISTAS_RIESGO_MEXICO.items():
+            partes_nombre_malo = nombre_sancionado.split()
+            if len(partes_nombre_malo) >= 2:
+                apellido_sancionado = partes_nombre_malo[-2] + " " + partes_nombre_malo[-1]
+                if apellido_sancionado in nombre_normalizado:
+                    return datos
+        
+        return None

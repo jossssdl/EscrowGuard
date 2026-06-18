@@ -59,3 +59,56 @@ def liquidar_pago_vendedor(clave_rastreo: str) -> dict:
         "mensaje": "Transferencia SPEI enviada al beneficiario final con exito.",
         "comprobante_electronico_pago": cuentas_puente_activas[clave_rastreo]
     }
+
+class BankEscrowService:
+    """
+    Clase que encapsula el servicio de fideicomiso y depósito en garantía.
+    """
+    def __init__(self):
+        pass
+
+    def crear_deposito(self, monto: float, nombre_comprador: str) -> dict:
+        """
+        Crea un registro de retención preventiva en el fideicomiso.
+        """
+        id_contrato = f"ESC-{str(uuid.uuid4().int)[:8]}"
+        res = retener_fondos_fideicomiso(id_contrato, monto)
+        return {
+            "transaction_id": res["clave_rastreo"],
+            "id_contrato": id_contrato,
+            "monto": monto,
+            "comprador": nombre_comprador,
+            "estado": "HELD"
+        }
+
+    def liberar_fondos(self, tx_id: str) -> bool:
+        """
+        Libera los fondos y los liquida al vendedor.
+        """
+        res = liquidar_pago_vendedor(tx_id)
+        return res["exito"]
+
+    def reembolsar_fondos(self, tx_id: str) -> bool:
+        """
+        Reembolsa los fondos devueltos al comprador.
+        """
+        if tx_id in cuentas_puente_activas:
+            cuentas_puente_activas[tx_id]["estado_stps"] = "REEMBOLSADO_AL_COMPRADOR"
+            cuentas_puente_activas[tx_id]["fecha_reembolso"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            logger.info(f"Reembolso completado para la transaccion {tx_id}.")
+            return True
+        return False
+
+    def obtener_deposito(self, tx_id: str) -> dict:
+        """
+        Obtiene el estado actual del depósito en garantía.
+        """
+        if tx_id in cuentas_puente_activas:
+            dep = cuentas_puente_activas[tx_id]
+            return {
+                "transaction_id": tx_id,
+                "comprador": dep.get("id_contrato"), # fallback to contract id/name
+                "monto": dep.get("monto_mxn"),
+                "estado": dep.get("estado_stps")
+            }
+        return None
