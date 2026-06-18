@@ -154,8 +154,8 @@ class ExtractorAgentWrapper:
             if not os.path.exists(ruta_pdf):
                 # Caso A: Buscar en la subcarpeta 'mock_docs'
                 posible_ruta_1 = os.path.join("mock_docs", input_str)
-                # Caso B: Buscar en 'escrow-guard/mock_docs' (ejecución desde raíz)
-                posible_ruta_2 = os.path.join("escrow-guard", "mock_docs", input_str)
+                # Caso B: Buscar en 'backend/mock_docs' (ejecución desde raíz)
+                posible_ruta_2 = os.path.join("backend", "mock_docs", input_str)
                 
                 if os.path.exists(posible_ruta_1):
                     ruta_pdf = posible_ruta_1
