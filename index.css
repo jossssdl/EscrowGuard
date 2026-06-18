@@ -1,0 +1,211 @@
+/* Custom stylesheet for EscrowGuard Dashboard & Simulator */
+/* Aligning with the "EscrowGuard Simulation Interface" Design System from Stitch */
+
+:root {
+    --color-bg-base: #0a0a0a;
+    --color-surface: #131313;
+    --color-primary: #6366f1; /* Electric Indigo */
+    --color-primary-light: #c0c1ff;
+    --color-secondary: #10b981; /* Emerald Success */
+    --color-secondary-light: #4edea3;
+    --color-tertiary: #f43f5e; /* Rose Danger */
+    --color-tertiary-light: #ffb2b7;
+    --color-warning: #fbbf24; /* Amber Warning */
+    
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+body {
+    background-color: var(--color-bg-base);
+    color: #e5e2e1;
+    font-family: var(--font-body);
+    overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+}
+
+/* Glassmorphism Panels and Modals */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-modal {
+    background: rgba(13, 13, 13, 0.85);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Custom Interactive States */
+.glass-card-hover {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.glass-card-hover:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(99, 102, 241, 0.1);
+}
+
+/* Node States in Simulator Flow */
+.node-item .node-icon-container {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.node-item.state-idle .node-icon-container {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.node-item.state-loading .node-icon-container {
+    background: rgba(99, 102, 241, 0.1);
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary-light);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    animation: node-pulse 2s infinite alternate;
+}
+
+.node-item.state-active .node-icon-container {
+    background: rgba(99, 102, 241, 0.25);
+    border: 2px solid var(--color-primary);
+    color: #ffffff;
+    box-shadow: 0 0 25px rgba(99, 102, 241, 0.6);
+    transform: scale(1.1);
+}
+
+.node-item.state-success .node-icon-container {
+    background: rgba(16, 185, 129, 0.15);
+    border: 2px solid var(--color-secondary);
+    color: var(--color-secondary-light);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.node-item.state-warning .node-icon-container {
+    background: rgba(251, 191, 36, 0.15);
+    border: 2px solid var(--color-warning);
+    color: var(--color-warning);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+    animation: warning-pulse 1.5s infinite alternate;
+}
+
+.node-item.state-error .node-icon-container {
+    background: rgba(244, 63, 94, 0.15);
+    border: 2px solid var(--color-tertiary);
+    color: var(--color-tertiary-light);
+    box-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
+    animation: error-pulse 1s infinite alternate;
+}
+
+/* Animations */
+@keyframes node-pulse {
+    0% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.2); }
+    100% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.6); }
+}
+
+@keyframes warning-pulse {
+    0% { box-shadow: 0 0 5px rgba(251, 191, 36, 0.2); transform: scale(1.0); }
+    100% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.6); transform: scale(1.05); }
+}
+
+@keyframes error-pulse {
+    0% { box-shadow: 0 0 5px rgba(244, 63, 94, 0.3); }
+    100% { box-shadow: 0 0 25px rgba(244, 63, 94, 0.8); }
+}
+
+.pulse-glow {
+    animation: pulse-glow-anim 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse-glow-anim {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 2px rgba(99, 102, 241, 0.3)); }
+    50% { opacity: 0.5; filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6)); }
+}
+
+/* Drag and Drop Zone styling */
+.drag-zone {
+    border: 2px dashed rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+}
+.drag-zone.drag-over {
+    border-color: var(--color-primary);
+    background: rgba(99, 102, 241, 0.05);
+    box-shadow: inset 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+/* Monospaced Log Console */
+.log-console {
+    background: rgba(5, 5, 8, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: var(--font-mono);
+    box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.8);
+}
+.log-line {
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    animation: console-fade-in 0.2s ease-out;
+}
+@keyframes console-fade-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar customization */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Flow particle moving animation (on SVG path) */
+.flow-connection-path {
+    stroke-dasharray: 8, 8;
+    animation: dash-flow 25s linear infinite;
+}
+.flow-connection-path-active {
+    stroke-dasharray: 8, 8;
+    animation: dash-flow 4s linear infinite;
+}
+@keyframes dash-flow {
+    to {
+        stroke-dashoffset: -1000;
+    }
+}
+
+/* Pulse animation for the connection line in simulator */
+#flow-progress {
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Quick responsive fixes */
+@media (max-width: 1024px) {
+    aside {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 40;
+    }
+    aside.mobile-open {
+        transform: translateX(0);
+    }
+    main {
+        margin-left: 0 !important;
+    }
+}
