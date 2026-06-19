@@ -1,16 +1,16 @@
 # EscrowGuard - Multi-Agent Compliance System for High-Value Escrows
 
-## 🏢 Desarrollado por **Script Hunters** para el Hackathon **Band of Agents** 🚀
+## 🏢 Developed by **Script Hunters** for the **Band of Agents** Hackathon 🚀
 
-EscrowGuard es una plataforma multiagente inteligente y segura diseñada para mitigar y resolver la fricción operativa ocasionada por falsos positivos en verificaciones de cumplimiento regulatorio (OFAC, PEP y prevención de lavado de dinero) en transacciones financieras de custodia (escrow) de alto valor.
+EscrowGuard is an intelligent, secure multi-agent platform designed to mitigate and resolve operational friction caused by false positives in regulatory compliance checks (OFAC, PEP, and Anti-Money Laundering) in high-value escrow financial transactions.
 
-Este repositorio está organizado con una arquitectura **Frontend / Backend** desacoplada para admitir despliegues independientes y un escalamiento modular idóneo para producción.
+This repository is organized with a decoupled **Frontend / Backend** architecture to support independent deployments and a modular design suitable for production scaling.
 
 ---
 
-## 🛠️ Arquitectura Completa del Sistema
+## 🛠️ Complete System Architecture
 
-EscrowGuard integra agentes LLM autónomos y cooperativos, una máquina de estados segura (LangGraph), servicios bancarios simulados y un portal interactivo para oficiales de cumplimiento (DPO) en un ecosistema unificado:
+EscrowGuard integrates autonomous and cooperative LLM agents, a secure state machine (LangGraph), simulated banking services, and an interactive compliance officer (DPO) portal into a unified ecosystem:
 
 ```mermaid
 graph TD
@@ -27,7 +27,7 @@ graph TD
         Store[(In-Memory Session Store)]
     end
     
-    subgraph Sindicato de Agentes & Servicios
+    subgraph Syndicate of Agents & Services
         LG[LangGraph Orchestrator]
         Ext[Extractor Agent - PydanticAI]
         OS[OSINT Agent - CrewAI]
@@ -35,7 +35,7 @@ graph TD
         DB[OFAC / PEP Sanctions DB]
     end
     
-    subgraph Plataforma Externa
+    subgraph External Platform
         Band[Band.ai SDK / Chat Room]
     end
 
@@ -67,127 +67,127 @@ graph TD
 
 ---
 
-## 📁 Estructura del Directorio del Proyecto
+## 📁 Project Directory Structure
 
-El espacio de trabajo está segmentado para separar la interfaz de usuario de los motores de procesamiento lógico en Python:
+The workspace is segmented to separate the user interface from backend processing engines in Python:
 
 ```text
 escrow-guard/
-├── docs/                               # Guías técnicas y scripts de demostración
-│   ├── dev1_integration.md             # Especificación de Integración y API de FastAPI
-│   ├── dev3_extractor_integration.md   # Documentación del Agente Extractor (PydanticAI)
-│   ├── dev6_frontend_simulator.md      # Especificación del simulador y diseño visual
-│   ├── demo_script_es.md               # Script de demostración paso a paso (Español)
-│   └── demo_script_en.md               # Script de demostración paso a paso (Inglés)
-├── frontend/                           # Aplicación Web del Cliente (Dev 6)
-│   ├── index.html                      # Landing Page principal y Simulador Sandbox
-│   ├── index.css                       # Estilos CSS Glassmorphic refinados para el simulador
-│   ├── login.html                      # Portal de inicio de sesión para el Oficial DPO
-│   ├── dashboard.html                  # Panel interactivo de auditoría DPO para escrows
-│   └── portal.css                      # Hojas de estilo dedicadas para las interfaces del portal
-├── backend/                            # Servidor Backend de Python
-│   ├── main.py                         # API REST de FastAPI y Listener de Band.ai (Dev 1)
-│   ├── requirements.txt                # Dependencias del servidor de Python
-│   ├── .env.example                    # Plantilla de variables de entorno requeridas
-│   ├── agents/                         # Agentes del Sindicato Inteligente
+├── docs/                               # Technical specifications and scripts
+│   ├── dev1_integration.md             # Integration & FastAPI API Specification
+│   ├── dev3_extractor_integration.md   # Extractor Agent Specification (PydanticAI)
+│   ├── dev6_frontend_simulator.md      # Simulator and visual layout specification
+│   ├── demo_script_es.md               # Step-by-step demo script (Spanish)
+│   └── demo_script_en.md               # Step-by-step demo script (English)
+├── frontend/                           # Client web application (Dev 6)
+│   ├── index.html                      # Landing Page & Sandbox Simulator
+│   ├── index.css                       # Refined Glassmorphic stylesheet for the simulator
+│   ├── login.html                      # Compliance portal login view for DPO
+│   ├── dashboard.html                  # Interactive DPO dashboard for escrow auditing
+│   └── portal.css                      # Dedicated stylesheets for compliance portal interfaces
+├── backend/                            # Python Backend Server
+│   ├── main.py                         # FastAPI REST API & Band.ai Listener (Dev 1)
+│   ├── requirements.txt                # Python backend dependencies
+│   ├── .env.example                    # Template for required environment variables
+│   ├── agents/                         # AI Syndicate Agents
 │   │   ├── __init__.py
-│   │   ├── extractor.py                # Extractor de PDF biométrico (PydanticAI - Dev 3)
-│   │   ├── osint.py                    # Investigador OSINT Web (CrewAI/LiteLLM - Dev 4)
-│   │   └── escrow.py                   # Orquestador del Flujo de Estados (LangGraph - Dev 5)
-│   ├── services/                       # Servicios e integraciones externas simuladas (Dev 2)
+│   │   ├── extractor.py                # Biometric PDF Extractor (PydanticAI - Dev 3)
+│   │   ├── osint.py                    # OSINT Web Investigator (CrewAI/LiteLLM - Dev 4)
+│   │   └── escrow.py                   # State Graph Orchestrator (LangGraph - Dev 5)
+│   ├── services/                       # Simulated services and integrations (Dev 2)
 │   │   ├── __init__.py
-│   │   ├── bank_mock.py                # Banco Mock de Fideicomisos y SPEI de Banxico
-│   │   └── sanction_mock.py            # Base de datos mock de PEPs y sanciones de OFAC
-│   └── mock_docs/                      # Documentos de identidad y payloads de prueba (Dev 2)
-│       ├── README.md                   # Guía de uso de los documentos de prueba
-│       ├── cliente_limpio.pdf          # Pasaporte limpio (Aprueba automáticamente)
-│       ├── solicitud_sat.pdf           # Pasaporte sospechoso (Genera Alerta / Falso Positivo)
-│       ├── empresa_fantasma.pdf        # Pasaporte bloqueado (Gatilla Rechazo)
-│       ├── Pasaporte (1).pdf           # Ejemplo adicional de pasaporte
-│       └── sample_payloads.json        # Archivo JSON con payloads de ejemplo para pruebas API
-├── LICENSE                             # Licencia de uso del código
-└── README.md                           # Documentación principal del repositorio
+│   │   ├── bank_mock.py                # Banxico SPEI & Escrow Mock Bank
+│   │   └── sanction_mock.py            # OFAC sanctions & PEP mock database
+│   └── mock_docs/                      # Sample documents and test payloads (Dev 2)
+│       ├── README.md                   # Guide for using test documents
+│       ├── cliente_limpio.pdf          # Clean passport (Approved automatically)
+│       ├── solicitud_sat.pdf           # Suspicious passport (Triggers Alerta / False Positive)
+│       ├── empresa_fantasma.pdf        # Blocked passport (Triggers rejection)
+│       ├── Pasaporte (1).pdf           # Additional sample passport
+│       └── sample_payloads.json        # JSON containing sample API request payloads
+├── LICENSE                             # Project license
+└── README.md                           # Main repository documentation
 ```
 
 ---
 
-## 👤 Roles de Desarrollo y Entregables del Equipo
+## 👤 Developer Roles and Deliverables
 
-El proyecto **EscrowGuard** fue desarrollado colaborativamente distribuyendo el alcance técnico entre 6 ingenieros especializados:
+The **EscrowGuard** project was collaboratively developed by distributing the technical scope across 6 specialized roles:
 
-### 🛠️ Dev 1: Integración de API, Listener y Pasarela del SDK
-* **Responsabilidades:**
-  - Desarrollo de la API REST utilizando **FastAPI** con políticas CORS dinámicas.
-  - Implementación de los endpoints `POST /api/simulate`, `GET /api/transaction/{id}` y `POST /api/transaction/{id}/resolve`.
-  - Integración del listener de salas de chat en tiempo real mediante el **Band Pro SDK**, permitiendo el envío de alertas automáticas y la recepción interactiva de comandos (`APROBAR` / `RECHAZAR`) por parte de oficiales humanos.
+### 🛠️ Dev 1: API Integration, Listener & SDK Core
+* **Responsibilities:**
+  - Designed the **FastAPI** backend with dynamic CORS configuration for cross-origin frontend communication.
+  - Implemented REST endpoints: `POST /api/simulate`, `GET /api/transaction/{id}`, and `POST /api/transaction/{id}/resolve`.
+  - Integrated the real-time chat room listener using the **Band Pro SDK**, facilitating automated alert distribution and interactive human feedback command consumption (`APROBAR` / `RECHAZAR`).
 
-### 💰 Dev 2: Servicios de Simulación y Activos de Prueba
-* **Responsabilidades:**
-  - Programación de la lógica del banco de fideicomisos (`bank_mock.py`), soportando congelamiento de fondos preventivos, reembolsos SPEI y dispersión final al vendedor.
-  - Creación del motor de base de datos de sanciones (`sanction_mock.py`) basado en la lista OFAC/PEP.
-  - Generación de pasaportes PDF reales con metadatos específicos para simular escenarios Limpios, Falsos Positivos y de Riesgo Crítico.
+### 💰 Dev 2: Simulation Services & Document Assets
+* **Responsibilities:**
+  - Programmed the mock banking logic (`bank_mock.py`), supporting preventive locks, SPEI refunds, and final release to the seller.
+  - Engineered the sanctions database mock (`sanction_mock.py`) referencing the OFAC/PEP lists.
+  - Authored realistic sample PDF passports and payloads for Clean, False Positive, and Critical Risk validation testing.
 
-### 🔍 Dev 3: Agente Extractor de Cumplimiento Biométrico
-* **Responsabilidades:**
-  - Desarrollo del extractor de texto estructurado utilizando **PydanticAI** y **PyPDF2** para parsear PDFs directamente a esquemas de tipo seguro `EntidadesExtraidas`.
-  - Diseño de fallbacks estáticos basados en patrones del nombre del archivo para asegurar ejecuciones resilientes ante ausencias de conexión de LLM.
-  - Configuración robusta tolerante a fallas en variables de entorno.
+### 🔍 Dev 3: Biometric Compliance Extractor Agent
+* **Responsibilities:**
+  - Developed the structured text extractor using **PydanticAI** and **PyPDF2** to convert raw PDF contents into type-safe `EntidadesExtraidas` data models.
+  - Built static fallback matchers based on filename patterns to ensure resilient execution when LLM access is unavailable.
+  - Designed robust handling for dynamic environment variables to avoid runtime exceptions.
 
-### 🌐 Dev 4: Agente Investigador OSINT Financiero
-* **Responsabilidades:**
-  - Configuración del agente inteligente en **CrewAI** para realizar minería web de noticias adversas, alertas del SAT Art. 69-B e historiales UIF.
-  - Integración con **LiteLLM** y la API de Gemini (2.5 Flash / 3.5 Flash) y Groq como motores cognitivos del agente.
-  - Generación automatizada de reportes consolidados de inteligencia financiera formateados en Markdown.
+### 🌐 Dev 4: Financial OSINT Investigator Agent
+* **Responsibilities:**
+  - Configured the intelligent agent in **CrewAI** to perform web searches for adverse news, PEP records, and UIF warnings.
+  - Integrated **LiteLLM** and Gemini API (2.5 Flash / 3.5 Flash) with Groq fallbacks as cognitive engines for the agent.
+  - Formatted final reports in Markdown to render clean, readable intelligence reports.
 
-### ⛓️ Dev 5: Orquestador del Grafo de Estados
-* **Responsabilidades:**
-  - Diseño del grafo secuencial utilizando **LangGraph** para trazar la lógica de negocio del fideicomiso.
-  - Gestión del ciclo de vida de la transacción en nodos: *Extracción*, *Retención Bancaria*, *Búsqueda OSINT*, *Pausa de Cumplimiento (DPO)* y *Liquidación/Dispersión*.
-  - Configuración del estado suspendido para soportar la intervención de Human-in-the-Loop (HITL) sin bloquear recursos.
+### ⛓️ Dev 5: State Machine Orchestrator
+* **Responsibilities:**
+  - Implemented the transition state machine using **LangGraph** to model the escrow business logic.
+  - Managed the transaction life-cycle across nodes: *Extraction*, *Bank Hold*, *OSINT Check*, *Compliance Hold (DPO)*, and *Settlement/Release*.
+  - Configured paused states to support asynchronous Human-in-the-Loop (HITL) manual resolution.
 
-### 🎨 Dev 6: Simulador Web UX y Portales de Cumplimiento
-* **Responsabilidades:**
-  - Diseño de una SPA moderna y glassmorphic bajo los lineamientos visuales del Stitch Design System.
-  - Creación de un simulador dual (Modo **Sandbox** local en cliente / Modo **Live** conectado a FastAPI).
-  - Implementación de drag-and-drop de archivos PDF, visualizadores dinámicos del estado de los nodos mediante SVG e interfaces de portal dedicadas para el DPO (`login.html` y `dashboard.html`).
+### 🎨 Dev 6: Web Simulator UX & Compliance Portals
+* **Responsibilities:**
+  - Crafted a premium glassmorphic Single Page Application under the visual guidelines of the Stitch Design System.
+  - Programmed a dual-mode engine (Local **Sandbox** client simulation / Local **Live** FastAPI server connection).
+  - Designed drag-and-drop file imports, real-time SVG status highlights, and dedicated DPO portal views (`login.html` and `dashboard.html`).
 
 ---
 
-## 🚀 Instrucciones de Configuración y Ejecución Local
+## 🚀 Local Setup & Run Instructions
 
-### 1. Inicialización del Backend
-1. Navega a la carpeta del backend:
+### 1. Starting the Backend
+1. Navigate to the backend folder:
    ```bash
    cd backend
    ```
-2. Crea tu archivo de configuración `.env` tomando como base el archivo `.env.example`:
+2. Create your environment variables file `.env` using `.env.example` as a template:
    ```bash
    cp .env.example .env
    ```
-   Asegúrate de configurar las variables principales:
-   * `GEMINI_API_KEY` (Utilizada por LiteLLM / Gemini 2.5 Flash)
-   * `GROK_API_KEY` (Opcional, mapeada para inicializar Groq en CrewAI)
-   * `BAND_API_KEY` y `BAND_ROOM_ID` (Opcional, requeridas si vas a conectar el bot real a salas de Band.ai)
+   Ensure you configure the following keys:
+   * `GEMINI_API_KEY` (Used by LiteLLM / Gemini 2.5 Flash)
+   * `GROK_API_KEY` (Optional, mapped to initialize Groq in CrewAI)
+   * `BAND_API_KEY` and `BAND_ROOM_ID` (Optional, required if connecting a bot to active Band.ai chatrooms)
 
-3. Activa tu entorno virtual e instala las dependencias:
+3. Activate your virtual environment and install dependencies:
    ```bash
    source ../.venv/bin/activate
    pip install -r requirements.txt
    ```
-4. Inicia el servidor web FastAPI:
+4. Run the FastAPI server:
    ```bash
    python main.py
    ```
-   El backend se ejecutará en [http://localhost:8000](http://localhost:8000).
+   The backend will start and run on [http://localhost:8000](http://localhost:8000).
 
-### 2. Inicialización del Frontend
-1. Entra a la carpeta del frontend:
+### 2. Starting the Frontend
+1. Navigate to the frontend folder:
    ```bash
    cd ../frontend
    ```
-2. Levanta un servidor de archivos estáticos para evitar bloqueos por políticas CORS:
+2. Start a static local server to prevent CORS issues:
    ```bash
    python3 -m http.server 8080
    ```
-3. Abre [http://localhost:8080](http://localhost:8080) en tu navegador.
-4. Explora las vistas del Portal DPO abriendo `login.html` y `dashboard.html` directamente en tu servidor local.
+3. Open [http://localhost:8080](http://localhost:8080) in your web browser.
+4. Access the DPO compliance portal views by opening `login.html` and `dashboard.html` directly in your local environment.
