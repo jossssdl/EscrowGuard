@@ -1,0 +1,55 @@
+{
+  "_descripcion": "Payloads de ejemplo para POST http://localhost:8000/api/simulate. En modo Live el campo 'archivo_entrada' determina la extracción real (el extractor sobrescribe 'comprador'); 'comprador' se incluye como referencia del resultado esperado.",
+  "escenarios": [
+    {
+      "nombre": "Caso Limpio (APPROVED)",
+      "resultado_esperado": "APPROVED",
+      "payload": {
+        "monto": 1200000.0,
+        "comprador": {
+          "nombre_completo": "JIMENEZ FILOMENO EDMUNDO",
+          "fecha_nacimiento": "1990-08-14",
+          "numero_documento": "MX-900814",
+          "nacionalidad": "MEXICANA",
+          "tipo_documento": "Identificación Nacional"
+        },
+        "archivo_entrada": "cliente_limpio.pdf"
+      }
+    },
+    {
+      "nombre": "Falso Positivo / Homonimia (SANCTION_FLAGGED -> HITL)",
+      "resultado_esperado": "SANCTION_FLAGGED",
+      "payload": {
+        "monto": 5000000.0,
+        "comprador": {
+          "nombre_completo": "CARLOS AVILA DIRCIO",
+          "fecha_nacimiento": "1992-07-14",
+          "numero_documento": "MX-556677",
+          "nacionalidad": "MEXICANA",
+          "tipo_documento": "Pasaporte"
+        },
+        "archivo_entrada": "solicitud_sat.pdf"
+      }
+    },
+    {
+      "nombre": "Sanción Exacta (REJECTED)",
+      "resultado_esperado": "REJECTED",
+      "payload": {
+        "monto": 8500000.0,
+        "comprador": {
+          "nombre_completo": "JOSE CRISTIAN AVILA DIRCIO",
+          "fecha_nacimiento": "1985-08-20",
+          "numero_documento": "MX-998877",
+          "nacionalidad": "MEXICANA",
+          "tipo_documento": "Pasaporte"
+        },
+        "archivo_entrada": "empresa_fantasma.pdf"
+      }
+    }
+  ],
+  "resolucion_hitl": {
+    "_descripcion": "Tras un SANCTION_FLAGGED, resolver con POST /api/transaction/{transaction_id}/resolve",
+    "aprobar": { "decision": "APROBAR" },
+    "rechazar": { "decision": "RECHAZAR" }
+  }
+}

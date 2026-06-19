@@ -81,7 +81,7 @@ def extraer_texto_pdf(pdf_path: str) -> str:
 # 3. Inicialización del Agente PydanticAI
 # Configuración dinámica del modelo a utilizar.
 # Damos prioridad a Groq por velocidad, seguido de Gemini por defecto.
-model_provider = "google:gemini-1.5-flash"
+model_provider = "google:gemini-2.5-flash"
 if "GROQ_API_KEY" in os.environ:
     # Usamos el modelo Llama 3.3 de 70b en Groq por su excelente rendimiento en extracción
     model_provider = "groq:llama-3.3-70b-versatile"
@@ -134,16 +134,22 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
         print(f"[Extractor] Error al ejecutar el agente LLM: {str(e)}")
         print(f"[Extractor] Utilizando fallback estático inteligente para el archivo: {pdf_path}")
         
+        # Fallbacks estáticos alineados con el contenido REAL de cada PDF de mock_docs.
+        # Esto garantiza que, aún sin LLM disponible, la demo produzca exactamente el
+        # mismo resultado que el modo Live (extracción real del PDF).
         nombre_archivo = os.path.basename(pdf_path).lower()
         if "limpio" in nombre_archivo or "valido" in nombre_archivo:
+            # Escenario LIMPIO -> APPROVED (no figura en ninguna lista de control)
             return EntidadesExtraidas(
-                nombre_completo="JUAN PEREZ GARCIA",
-                fecha_nacimiento="1985-10-12",
-                numero_documento="MX-772849",
+                nombre_completo="JIMENEZ FILOMENO EDMUNDO",
+                fecha_nacimiento="1990-08-14",
+                numero_documento="MX-900814",
                 nacionalidad="MEXICO",
-                tipo_documento="Pasaporte"
+                tipo_documento="Identificación Nacional"
             )
         elif "sospechoso" in nombre_archivo or "sat" in nombre_archivo:
+            # Escenario FALSO POSITIVO -> SANCTION_FLAGGED / HITL
+            # (comparte apellidos con el PEP, pero distinta fecha de nacimiento)
             return EntidadesExtraidas(
                 nombre_completo="CARLOS AVILA DIRCIO",
                 fecha_nacimiento="1992-07-14",
@@ -152,19 +158,21 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
                 tipo_documento="Pasaporte"
             )
         elif "fantasma" in nombre_archivo:
+            # Escenario SANCIÓN EXACTA -> REJECTED
+            # (coincidencia exacta con el PEP y misma fecha de nacimiento)
             return EntidadesExtraidas(
-                nombre_completo="COMERCIALIZADORA FANTASMA SA DE CV",
-                fecha_nacimiento="NO_DETECTADO",
+                nombre_completo="JOSE CRISTIAN AVILA DIRCIO",
+                fecha_nacimiento="1985-08-20",
                 numero_documento="MX-998877",
                 nacionalidad="MEXICO",
-                tipo_documento="Acta Constitutiva"
+                tipo_documento="Pasaporte"
             )
         else:
-            # Fallback por defecto (Juan Pérez de OFAC para detonar rechazo)
+            # Fallback por defecto: caso de falso positivo (el escenario estrella de la demo)
             return EntidadesExtraidas(
-                nombre_completo="JUAN PEREZ",
-                fecha_nacimiento="1975-04-12",
-                numero_documento="MX-998877",
+                nombre_completo="CARLOS AVILA DIRCIO",
+                fecha_nacimiento="1992-07-14",
+                numero_documento="MX-556677",
                 nacionalidad="MEXICO",
                 tipo_documento="Pasaporte"
             )

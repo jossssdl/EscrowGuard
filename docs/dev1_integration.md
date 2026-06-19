@@ -55,13 +55,13 @@ To allow the frontend simulator to trigger transactions and visualize the LangGr
     "transaction_id": "ESC-88741B",
     "monto": 5000000.00,
     "comprador": {
-      "nombre_completo": "JUAN PEREZ",
-      "fecha_nacimiento": "1980-05-15",
-      "numero_documento": "MX-998877",
+      "nombre_completo": "CARLOS AVILA DIRCIO",
+      "fecha_nacimiento": "1992-07-14",
+      "numero_documento": "MX-556677",
       "nacionalidad": "MEXICANA",
       "tipo_documento": "Pasaporte"
     },
-    "archivo_entrada": "pasaporte_sospechoso.pdf"
+    "archivo_entrada": "solicitud_sat.pdf"
   }
   ```
 * **Success Response (200 OK):**
@@ -72,8 +72,8 @@ To allow the frontend simulator to trigger transactions and visualize the LangGr
     "estado_final": "SANCTION_FLAGGED",
     "logs": [
       "Iniciando análisis de documento y extracción...",
-      "Leyendo documento: pasaporte_sospechoso.pdf",
-      "Datos extraídos con éxito: JUAN PEREZ",
+      "Leyendo documento: solicitud_sat.pdf",
+      "Datos extraídos con éxito: CARLOS AVILA DIRCIO",
       "Solicitando retención preventiva de fondos al banco...",
       "Fondos bloqueados. Transacción ID bancario: ESC-88741B",
       "Iniciando cruce de información en listas de control OFAC y OSINT...",
@@ -82,22 +82,22 @@ To allow the frontend simulator to trigger transactions and visualize the LangGr
       "Pausando ejecución de agentes. Esperando revisión interactiva por Oficial de Cumplimiento (DPO)."
     ],
     "comprador": {
-      "nombre_completo": "JUAN PEREZ",
-      "fecha_nacimiento": "1980-05-15",
-      "numero_documento": "MX-998877",
+      "nombre_completo": "CARLOS AVILA DIRCIO",
+      "fecha_nacimiento": "1992-07-14",
+      "numero_documento": "MX-556677",
       "nacionalidad": "MEXICANA",
       "tipo_documento": "Pasaporte"
     },
     "osint": {
       "tiene_alerta": true,
       "sancion_data": {
-        "nombre_completo": "JUAN PEREZ",
-        "fecha_nacimiento": "1975-04-12",
+        "nombre_completo": "JOSÉ CRISTIAN AVILA DIRCIO",
+        "fecha_nacimiento": "1985-08-20",
         "nacionalidad": "MEXICANA",
-        "motivo": "Lavado de Dinero - Cartel de la Frontera",
-        "gravedad": "ALTA"
+        "motivo": "Persona Expuesta Políticamente (PEP) - Operaciones con Recursos de Procedencia Ilícita",
+        "gravedad": "CRITICO"
       },
-      "reporte_markdown": "### 🔍 Reporte de Investigación OSINT: JUAN PEREZ..."
+      "reporte_markdown": "### 🔍 Reporte de Investigación OSINT: CARLOS AVILA DIRCIO..."
     }
   }
   ```

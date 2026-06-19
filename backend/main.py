@@ -66,16 +66,16 @@ app.add_middleware(
 # --- Modelos de Peticiones y Respuestas de la API ---
 
 class CompradorInput(BaseModel):
-    nombre_completo: str = Field(..., example="JUAN PEREZ")
-    fecha_nacimiento: str = Field(..., example="1980-05-15")
-    numero_documento: str = Field(..., example="MX-998877")
+    nombre_completo: str = Field(..., example="CARLOS AVILA DIRCIO")
+    fecha_nacimiento: str = Field(..., example="1992-07-14")
+    numero_documento: str = Field(..., example="MX-556677")
     nacionalidad: str = Field(..., example="MEXICANA")
     tipo_documento: str = Field(default="Pasaporte")
 
 class SimularTransaccionInput(BaseModel):
     monto: float = Field(..., example=5000000.00)
     comprador: CompradorInput
-    archivo_entrada: Optional[str] = Field(default=None, description="Nombre del archivo PDF simulado (ej: pasaporte_valido.pdf)")
+    archivo_entrada: Optional[str] = Field(default=None, description="Nombre del archivo PDF simulado (ej: solicitud_sat.pdf)")
 
 # Almacén local en memoria para mantener el estado actual de las simulaciones activas
 # Clave: transaction_id, Valor: estado global del grafo

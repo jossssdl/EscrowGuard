@@ -56,9 +56,9 @@ class OSINTOchestrator:
         # Fallback a Gemini
         if "GOOGLE_API_KEY" in os.environ and os.environ["GOOGLE_API_KEY"]:
             try:
-                logger.info("Inicializando LLM de Gemini (1.5 Flash) para CrewAI.")
+                logger.info("Inicializando LLM de Gemini (2.5 Flash) para CrewAI.")
                 return LLM(
-                    model="gemini/gemini-1.5-flash",
+                    model="gemini/gemini-2.5-flash",
                     api_key=os.environ["GOOGLE_API_KEY"]
                 )
             except Exception as e:

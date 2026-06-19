@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>Sistema operativo | EscrowGuard</title>
+    <script>
+        if (!localStorage.getItem('escrow_guard_session')) window.location.replace('login.html');
+        document.documentElement.dataset.theme = localStorage.getItem('escrow_guard_theme') === 'light' ? 'light' : 'dark';
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="portal.css?v=20260618-5">
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="app-sidebar">
+            <a class="brand" href="dashboard.html"><span class="material-symbols-outlined">shield</span><span>Escrow<strong>Guard</strong></span></a>
+            <nav class="side-nav" aria-label="Navegación del sistema">
+                <a class="active" href="#overview"><span class="material-symbols-outlined">space_dashboard</span><span data-ui="nav-overview">Resumen</span></a>
+                <a href="#transactions"><span class="material-symbols-outlined">account_balance_wallet</span><span data-ui="nav-transactions">Operaciones</span></a>
+                <a href="#risk"><span class="material-symbols-outlined">policy</span><span data-ui="nav-risk">Cumplimiento</span></a>
+                <a href="#agents"><span class="material-symbols-outlined">hub</span><span data-ui="nav-agents">Agentes</span></a>
+                <a href="#account"><span class="material-symbols-outlined">manage_accounts</span><span data-ui="nav-account">Mi cuenta</span></a>
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="system-state"><span class="state-dot"></span><span data-ui="agents-operational">Todos los agentes operativos</span></div>
+                <button class="logout" id="logout" type="button"><span class="material-symbols-outlined">logout</span><span data-ui="logout">Cerrar sesión</span></button>
+            </div>
+        </aside>
+
+        <main class="app-main">
+            <header class="topbar">
+                <div><strong data-ui="operations-center">Centro operativo</strong><small class="muted"> · Sandbox</small></div>
+                <div class="topbar-actions">
+                    <button class="icon-button" id="theme-toggle" type="button" aria-label="Tema actual: Oscuro"><span class="material-symbols-outlined">dark_mode</span></button>
+                    <button class="profile profile-button" type="button" data-route="account" aria-label="Abrir configuración de cuenta"><div class="profile-avatar">MT</div><div><strong id="profile-name">Mariana Torres</strong><small id="profile-role">Oficial de Cumplimiento</small></div></button>
+                </div>
+            </header>
+
+            <div class="dashboard">
+                <section class="app-view active" data-view="overview" aria-labelledby="overview-title">
+                    <div class="dashboard-heading">
+                        <div><h1 id="overview-title">Resumen operativo</h1><p>Supervisa fondos, alertas y decisiones en tiempo real.</p></div>
+                        <button class="new-operation" type="button" data-open-operation>+ Nueva operación</button>
+                    </div>
+                    <div class="metric-grid" aria-label="Indicadores principales">
+                        <article class="card metric"><div class="metric-label"><span>Fondos protegidos</span><span class="material-symbols-outlined">lock</span></div><strong>$4.2M</strong><small>+12.4% este mes</small></article>
+                        <article class="card metric"><div class="metric-label"><span>Operaciones activas</span><span class="material-symbols-outlined">sync_alt</span></div><strong id="active-count">12</strong><small>8 sin incidencias</small></article>
+                        <article class="card metric"><div class="metric-label"><span>Precisión PLD</span><span class="material-symbols-outlined">verified</span></div><strong>99.8%</strong><small>Últimos 30 días</small></article>
+                        <article class="card metric"><div class="metric-label"><span>Revisión humana</span><span class="material-symbols-outlined">person_check</span></div><strong id="review-count">2</strong><small style="color:var(--warning)">Casos pendientes</small></article>
+                    </div>
+                    <div class="dashboard-grid">
+                        <section class="card">
+                            <div class="card-header"><h2>Operaciones recientes</h2><button class="text-button" type="button" data-route="transactions">Ver todas</button></div>
+                            <div class="table-wrap"><table><thead><tr><th>ID</th><th>Comprador</th><th>Monto</th><th>Estado</th><th>Actualización</th></tr></thead><tbody id="recent-operations">
+                                <tr><td>ESC-2841</td><td>Juan Pérez García</td><td>$1,200,000</td><td><span class="status approved">● Aprobada</span></td><td>Hace 2 min</td></tr>
+                                <tr><td>ESC-2839</td><td>Carlos Ávila Dircio</td><td>$840,000</td><td><span class="status review">● Revisión HITL</span></td><td>Hace 8 min</td></tr>
+                                <tr><td>ESC-2834</td><td>Comercializadora NX</td><td>$2,100,000</td><td><span class="status blocked">● Bloqueada</span></td><td>Hace 24 min</td></tr>
+                                <tr><td>ESC-2828</td><td>Ana Rodríguez</td><td>$560,000</td><td><span class="status approved">● Aprobada</span></td><td>Hace 41 min</td></tr>
+                            </tbody></table></div>
+                        </section>
+                        <section class="card">
+                            <div class="card-header"><h2>Cola de cumplimiento</h2><button class="status review status-button" type="button" data-route="risk"><span id="queue-count">2</span> pendientes</button></div>
+                            <div class="risk-list">
+                                <button class="risk-item risk-button" type="button" data-case="pep"><span class="risk-icon material-symbols-outlined">person_alert</span><span><strong>Posible homónimo PEP</strong><small>ESC-2839 · Carlos Ávila</small></span><span class="material-symbols-outlined chevron">chevron_right</span></button>
+                                <button class="risk-item risk-button" type="button" data-case="sat"><span class="risk-icon material-symbols-outlined">domain_disabled</span><span><strong>Coincidencia SAT 69-B</strong><small>ESC-2834 · Prioridad alta</small></span><span class="material-symbols-outlined chevron">chevron_right</span></button>
+                                <button class="risk-item risk-button" type="button" data-route="agents"><span class="risk-icon material-symbols-outlined agent-ok">smart_toy</span><span><strong>4 agentes conectados</strong><small>Latencia promedio: 184 ms</small></span><span class="material-symbols-outlined chevron">chevron_right</span></button>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+
+                <section class="app-view" data-view="transactions" aria-labelledby="transactions-title" hidden>
+                    <div class="dashboard-heading"><div><h1 id="transactions-title">Operaciones</h1><p>Consulta y administra todos los depósitos en garantía.</p></div><button class="new-operation" type="button" data-open-operation>+ Nueva operación</button></div>
+                    <div class="toolbar card"><label class="search-field"><span class="material-symbols-outlined">search</span><input id="operation-search" type="search" placeholder="Buscar por ID o comprador"></label><select id="operation-filter" aria-label="Filtrar por estado"><option value="all">Todos los estados</option><option value="approved">Aprobadas</option><option value="review">En revisión</option><option value="blocked">Bloqueadas</option></select></div>
+                    <section class="card">
+                        <div class="card-header"><h2>Historial de operaciones</h2><span class="muted" id="operation-result-count">5 resultados</span></div>
+                        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Comprador</th><th>Monto</th><th>Estado</th><th>Fecha</th><th></th></tr></thead><tbody id="operations-table">
+                            <tr data-state="approved" data-search="esc-2841 juan pérez garcía"><td>ESC-2841</td><td>Juan Pérez García</td><td>$1,200,000</td><td><span class="status approved">● Aprobada</span></td><td>18 jun 2026</td><td><button class="row-action" type="button" data-operation="ESC-2841">Ver detalle</button></td></tr>
+                            <tr data-state="review" data-search="esc-2839 carlos ávila dircio"><td>ESC-2839</td><td>Carlos Ávila Dircio</td><td>$840,000</td><td><span class="status review">● Revisión HITL</span></td><td>18 jun 2026</td><td><button class="row-action" type="button" data-case="pep">Revisar</button></td></tr>
+                            <tr data-state="blocked" data-search="esc-2834 comercializadora nx"><td>ESC-2834</td><td>Comercializadora NX</td><td>$2,100,000</td><td><span class="status blocked">● Bloqueada</span></td><td>18 jun 2026</td><td><button class="row-action" type="button" data-case="sat">Revisar</button></td></tr>
+                            <tr data-state="approved" data-search="esc-2828 ana rodríguez"><td>ESC-2828</td><td>Ana Rodríguez</td><td>$560,000</td><td><span class="status approved">● Aprobada</span></td><td>17 jun 2026</td><td><button class="row-action" type="button" data-operation="ESC-2828">Ver detalle</button></td></tr>
+                            <tr data-state="approved" data-search="esc-2821 logística del pacífico"><td>ESC-2821</td><td>Logística del Pacífico</td><td>$1,780,000</td><td><span class="status approved">● Aprobada</span></td><td>17 jun 2026</td><td><button class="row-action" type="button" data-operation="ESC-2821">Ver detalle</button></td></tr>
+                        </tbody></table></div>
+                    </section>
+                </section>
+
+                <section class="app-view" data-view="risk" aria-labelledby="risk-title" hidden>
+                    <div class="dashboard-heading"><div><h1 id="risk-title">Cumplimiento</h1><p>Resuelve alertas que requieren una decisión humana.</p></div><span class="status review"><span id="risk-heading-count">2</span> casos pendientes</span></div>
+                    <div class="compliance-grid">
+                        <section class="card case-list"><div class="card-header"><h2>Casos en revisión</h2></div>
+                            <button class="case-card active" type="button" data-select-case="pep"><span class="risk-icon material-symbols-outlined">person_alert</span><span><strong>Posible homónimo PEP</strong><small>ESC-2839 · Carlos Ávila</small></span><span class="status review">Media</span></button>
+                            <button class="case-card" type="button" data-select-case="sat"><span class="risk-icon material-symbols-outlined">domain_disabled</span><span><strong>Coincidencia SAT 69-B</strong><small>ESC-2834 · Comercializadora NX</small></span><span class="status blocked">Alta</span></button>
+                        </section>
+                        <section class="card case-detail"><div class="card-header"><div><small class="muted" id="case-id">ESC-2839</small><h2 id="case-title">Posible homónimo PEP</h2></div></div>
+                            <div class="case-content"><div class="case-alert"><span class="material-symbols-outlined">warning</span><p id="case-description">El apellido coincide con una persona políticamente expuesta, pero las fechas de nacimiento son distintas.</p></div><dl><div><dt>Persona evaluada</dt><dd id="case-subject">Carlos Ávila Dircio</dd></div><div><dt>Fuente</dt><dd id="case-source">OFAC / PEP</dd></div><div><dt>Confianza</dt><dd id="case-confidence">72%</dd></div><div><dt>Fondos retenidos</dt><dd id="case-amount">$840,000 MXN</dd></div></dl><label class="decision-note">Nota de resolución<textarea id="decision-note" rows="3" placeholder="Agrega contexto para la auditoría"></textarea></label><div class="decision-actions"><button class="danger-button" id="reject-case" type="button">Rechazar operación</button><button class="success-button" id="approve-case" type="button">Aprobar falso positivo</button></div></div>
+                        </section>
+                    </div>
+                </section>
+
+                <section class="app-view" data-view="agents" aria-labelledby="agents-title" hidden>
+                    <div class="dashboard-heading"><div><h1 id="agents-title">Agentes de IA</h1><p>Estado, latencia y actividad de cada componente del flujo.</p></div><button class="secondary-button" id="refresh-agents" type="button"><span class="material-symbols-outlined">refresh</span> Actualizar estado</button></div>
+                    <div class="agent-grid">
+                        <article class="card agent-card"><div class="agent-head"><span class="agent-symbol material-symbols-outlined">document_scanner</span><span class="status approved">● Operativo</span></div><h2>Extractor AI</h2><p>Extrae y valida datos estructurados de documentos.</p><div class="agent-meta"><span>Latencia <strong>142 ms</strong></span><span>Precisión <strong>99.4%</strong></span></div><button class="row-action agent-test" type="button" data-agent="Extractor AI">Probar conexión</button></article>
+                        <article class="card agent-card"><div class="agent-head"><span class="agent-symbol material-symbols-outlined">account_balance</span><span class="status approved">● Operativo</span></div><h2>Banco Escrow</h2><p>Retiene y libera fondos mediante el adaptador SPEI.</p><div class="agent-meta"><span>Latencia <strong>206 ms</strong></span><span>Disponibilidad <strong>99.9%</strong></span></div><button class="row-action agent-test" type="button" data-agent="Banco Escrow">Probar conexión</button></article>
+                        <article class="card agent-card"><div class="agent-head"><span class="agent-symbol material-symbols-outlined">travel_explore</span><span class="status approved">● Operativo</span></div><h2>OSINT Risk</h2><p>Consulta listas OFAC, PEP y SAT para clasificar riesgo.</p><div class="agent-meta"><span>Latencia <strong>184 ms</strong></span><span>Fuentes <strong>3 activas</strong></span></div><button class="row-action agent-test" type="button" data-agent="OSINT Risk">Probar conexión</button></article>
+                        <article class="card agent-card"><div class="agent-head"><span class="agent-symbol material-symbols-outlined">person_check</span><span class="status approved">● Operativo</span></div><h2>Compliance HITL</h2><p>Orquesta decisiones humanas y conserva evidencia.</p><div class="agent-meta"><span>Latencia <strong>91 ms</strong></span><span>Pendientes <strong id="agent-pending">2 casos</strong></span></div><button class="row-action agent-test" type="button" data-agent="Compliance HITL">Probar conexión</button></article>
+                    </div>
+                    <section class="card activity-card"><div class="card-header"><h2>Actividad reciente</h2><span class="status approved">En vivo</span></div><div class="activity-list" id="agent-activity"><p><span class="state-dot"></span><strong>OSINT Risk</strong> completó el análisis de ESC-2841 <small>Hace 2 min</small></p><p><span class="state-dot"></span><strong>Extractor AI</strong> procesó cliente_limpio.pdf <small>Hace 4 min</small></p><p><span class="state-dot"></span><strong>Compliance HITL</strong> abrió el caso ESC-2839 <small>Hace 8 min</small></p></div></section>
+                </section>
+
+                <section class="app-view" data-view="account" aria-labelledby="account-title" hidden>
+                    <div class="dashboard-heading"><div><h1 id="account-title" data-ui="account-title">Configuración de cuenta</h1><p data-ui="account-desc">Administra tu información personal y preferencias del sistema.</p></div></div>
+                    <div class="settings-grid">
+                        <form class="card account-card" id="account-form">
+                            <div class="card-header"><h2 data-ui="personal-info">Información personal</h2></div>
+                            <div class="account-profile"><div class="profile-avatar account-avatar" id="account-avatar">MT</div><div><strong id="account-display-name">Mariana Torres</strong><small id="account-display-role">Oficial de Cumplimiento</small></div></div>
+                            <div class="settings-fields"><label><span data-ui="full-name">Nombre completo</span><input id="account-name" required value="Mariana Torres"></label><label><span data-ui="email">Correo electrónico</span><input id="account-email" required type="email" value="compliance@escrowguard.mx"></label><label><span data-ui="role">Cargo</span><input id="account-role" required value="Oficial de Cumplimiento"></label><label><span data-ui="company">Organización</span><input id="account-company" value="EscrowGuard México"></label><label><span data-ui="phone">Teléfono</span><input id="account-phone" type="tel" value="+52 55 1234 5678"></label></div>
+                            <div class="settings-actions"><button class="new-operation" type="submit" data-ui="save-changes">Guardar cambios</button></div>
+                        </form>
+                        <div class="settings-column">
+                            <section class="card preference-card"><div class="card-header"><h2 data-ui="language">Idioma</h2></div><div class="preference-content"><p class="muted" data-ui="language-desc">Selecciona el idioma de la interfaz.</p><div class="language-options"><button class="option-button" type="button" data-language="es"><span>ES</span><strong>Español</strong><span class="material-symbols-outlined">check_circle</span></button><button class="option-button" type="button" data-language="en"><span>EN</span><strong>English</strong><span class="material-symbols-outlined">check_circle</span></button></div></div></section>
+                            <section class="card preference-card"><div class="card-header"><h2 data-ui="appearance">Apariencia</h2></div><div class="preference-content"><p class="muted" data-ui="appearance-desc">Elige el tema visual del sistema.</p><div class="appearance-options"><button class="appearance-button" type="button" data-theme-choice="light" aria-label="Tema claro"><span class="material-symbols-outlined">light_mode</span></button><button class="appearance-button" type="button" data-theme-choice="dark" aria-label="Tema oscuro"><span class="material-symbols-outlined">dark_mode</span></button></div></div></section>
+                            <section class="card session-card"><span class="material-symbols-outlined">shield_lock</span><div><strong data-ui="secure-session">Sesión segura</strong><p class="muted" data-ui="secure-session-desc">Acceso simulado protegido en este dispositivo.</p></div></section>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+    <div class="modal-backdrop" id="operation-modal" hidden>
+        <section class="app-modal" role="dialog" aria-modal="true" aria-labelledby="operation-modal-title"><div class="modal-header"><div><small class="muted">Sandbox</small><h2 id="operation-modal-title">Nueva operación</h2></div><button class="icon-button" id="close-operation" type="button" aria-label="Cerrar"><span class="material-symbols-outlined">close</span></button></div><form id="operation-form"><div class="modal-grid"><label>Comprador<input id="new-buyer" required placeholder="Nombre o razón social"></label><label>Monto MXN<input id="new-amount" required type="number" min="1" placeholder="1000000"></label><label>Documento<input id="new-document" required placeholder="RFC o pasaporte"></label><label>Beneficiario<input id="new-beneficiary" required placeholder="Nombre del vendedor"></label></div><label class="file-control">Documento de soporte<input id="new-file" type="file" accept=".pdf"><span>Seleccionar PDF</span></label><div class="modal-actions"><button class="secondary-button" id="cancel-operation" type="button">Cancelar</button><button class="new-operation" type="submit">Crear y validar</button></div></form></section>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script>
+        let session = JSON.parse(localStorage.getItem('escrow_guard_session') || '{}');
+        if (session.name) document.getElementById('profile-name').textContent = session.name;
+        function applyTheme(theme) {
+            document.documentElement.dataset.theme = theme;
+            document.querySelector('#theme-toggle .material-symbols-outlined').textContent = theme === 'dark' ? 'dark_mode' : 'light_mode';
+            document.getElementById('theme-toggle').setAttribute('aria-label', `Tema actual: ${theme === 'dark' ? 'Oscuro' : 'Claro'}`);
+            document.querySelectorAll('[data-theme-choice]').forEach(button => button.classList.toggle('active', button.dataset.themeChoice === theme));
+            localStorage.setItem('escrow_guard_theme', theme);
+        }
+        applyTheme(localStorage.getItem('escrow_guard_theme') || 'dark');
+        document.getElementById('theme-toggle').addEventListener('click', () => applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+        document.getElementById('logout').addEventListener('click', () => { localStorage.removeItem('escrow_guard_session'); window.location.replace('login.html'); });
+
+        const validViews = ['overview', 'transactions', 'risk', 'agents', 'account'];
+        const cases = {
+            pep: { id: 'ESC-2839', title: 'Posible homónimo PEP', subject: 'Carlos Ávila Dircio', source: 'OFAC / PEP', confidence: '72%', amount: '$840,000 MXN', description: 'El apellido coincide con una persona políticamente expuesta, pero las fechas de nacimiento son distintas.' },
+            sat: { id: 'ESC-2834', title: 'Coincidencia SAT 69-B', subject: 'Comercializadora NX', source: 'SAT Art. 69-B', confidence: '96%', amount: '$2,100,000 MXN', description: 'La razón social presenta una coincidencia de alta confianza con un contribuyente de operaciones presuntamente inexistentes.' }
+        };
+        let activeCase = 'pep';
+        let pendingCases = 2;
+        const uiTranslations = {
+            es: { 'nav-overview': 'Resumen', 'nav-transactions': 'Operaciones', 'nav-risk': 'Cumplimiento', 'nav-agents': 'Agentes', 'nav-account': 'Mi cuenta', logout: 'Cerrar sesión', 'operations-center': 'Centro operativo', 'agents-operational': 'Todos los agentes operativos', 'account-title': 'Configuración de cuenta', 'account-desc': 'Administra tu información personal y preferencias del sistema.', 'personal-info': 'Información personal', 'full-name': 'Nombre completo', email: 'Correo electrónico', role: 'Cargo', company: 'Organización', phone: 'Teléfono', 'save-changes': 'Guardar cambios', language: 'Idioma', 'language-desc': 'Selecciona el idioma de la interfaz.', appearance: 'Apariencia', 'appearance-desc': 'Elige el tema visual del sistema.', 'secure-session': 'Sesión segura', 'secure-session-desc': 'Acceso simulado protegido en este dispositivo.' },
+            en: { 'nav-overview': 'Overview', 'nav-transactions': 'Transactions', 'nav-risk': 'Compliance', 'nav-agents': 'Agents', 'nav-account': 'My account', logout: 'Sign out', 'operations-center': 'Operations center', 'agents-operational': 'All agents operational', 'account-title': 'Account settings', 'account-desc': 'Manage your personal information and system preferences.', 'personal-info': 'Personal information', 'full-name': 'Full name', email: 'Email address', role: 'Role', company: 'Organization', phone: 'Phone', 'save-changes': 'Save changes', language: 'Language', 'language-desc': 'Select the interface language.', appearance: 'Appearance', 'appearance-desc': 'Choose the visual theme.', 'secure-session': 'Secure session', 'secure-session-desc': 'Simulated access protected on this device.' }
+        };
+        const phraseTranslations = {
+            'Resumen operativo': 'Operations overview', 'Supervisa fondos, alertas y decisiones en tiempo real.': 'Monitor funds, alerts, and decisions in real time.', '+ Nueva operación': '+ New transaction', 'Fondos protegidos': 'Protected funds', 'Operaciones activas': 'Active transactions', 'Precisión PLD': 'AML accuracy', 'Revisión humana': 'Human review', 'Operaciones recientes': 'Recent transactions', 'Ver todas': 'View all', 'Cola de cumplimiento': 'Compliance queue',
+            'Operaciones': 'Transactions', 'Consulta y administra todos los depósitos en garantía.': 'Review and manage every escrow transaction.', 'Todos los estados': 'All statuses', 'Aprobadas': 'Approved', 'En revisión': 'In review', 'Bloqueadas': 'Blocked', 'Historial de operaciones': 'Transaction history', 'Ver detalle': 'View details', 'Revisar': 'Review',
+            'Cumplimiento': 'Compliance', 'Resuelve alertas que requieren una decisión humana.': 'Resolve alerts that require a human decision.', 'Casos en revisión': 'Cases under review', 'Posible homónimo PEP': 'Possible PEP name match', 'Coincidencia SAT 69-B': 'SAT 69-B match', 'Persona evaluada': 'Evaluated subject', 'Fuente': 'Source', 'Confianza': 'Confidence', 'Fondos retenidos': 'Held funds', 'Nota de resolución': 'Resolution note', 'Rechazar operación': 'Reject transaction', 'Aprobar falso positivo': 'Approve false positive',
+            'Agentes de IA': 'AI agents', 'Estado, latencia y actividad de cada componente del flujo.': 'Status, latency, and activity for every workflow component.', 'Actualizar estado': 'Refresh status', 'Operativo': 'Operational', 'Latencia': 'Latency', 'Precisión': 'Accuracy', 'Disponibilidad': 'Availability', 'Fuentes': 'Sources', 'Pendientes': 'Pending', 'Probar conexión': 'Test connection', 'Actividad reciente': 'Recent activity', 'En vivo': 'Live'
+        };
+
+        function applyLanguage(language) {
+            const lang = language === 'en' ? 'en' : 'es';
+            document.documentElement.lang = lang;
+            localStorage.setItem('escrow_guard_lang', lang);
+            document.querySelectorAll('[data-ui]').forEach(element => {
+                const value = uiTranslations[lang][element.dataset.ui];
+                if (value) element.textContent = value;
+            });
+            const reverseTranslations = Object.fromEntries(Object.entries(phraseTranslations).map(([es, en]) => [en, es]));
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+            const textNodes = [];
+            while (walker.nextNode()) textNodes.push(walker.currentNode);
+            textNodes.forEach(node => {
+                if (node.parentElement?.closest('script, style, [data-ui]')) return;
+                const trimmed = node.nodeValue.trim();
+                const translated = lang === 'en' ? phraseTranslations[trimmed] : reverseTranslations[trimmed];
+                if (translated) node.nodeValue = node.nodeValue.replace(trimmed, translated);
+            });
+            document.querySelectorAll('[data-language]').forEach(button => button.classList.toggle('active', button.dataset.language === lang));
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.dataset.type = type;
+            toast.classList.add('show');
+            clearTimeout(showToast.timer);
+            showToast.timer = setTimeout(() => toast.classList.remove('show'), 2600);
+        }
+
+        function navigate(view, updateHash = true) {
+            const target = validViews.includes(view) ? view : 'overview';
+            document.querySelectorAll('.app-view').forEach(section => {
+                const active = section.dataset.view === target;
+                section.hidden = !active;
+                section.classList.toggle('active', active);
+            });
+            document.querySelectorAll('.side-nav a').forEach(link => link.classList.toggle('active', link.getAttribute('href') === `#${target}`));
+            if (updateHash && location.hash !== `#${target}`) history.pushState(null, '', `#${target}`);
+            document.querySelector('.app-main').scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.querySelectorAll('[data-route]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.route)));
+        document.querySelectorAll('.side-nav a').forEach(link => link.addEventListener('click', event => { event.preventDefault(); navigate(link.hash.slice(1)); }));
+        window.addEventListener('hashchange', () => navigate(location.hash.slice(1), false));
+
+        const operationModal = document.getElementById('operation-modal');
+        function setOperationModal(open) {
+            operationModal.hidden = !open;
+            document.body.classList.toggle('modal-open', open);
+            if (open) setTimeout(() => document.getElementById('new-buyer').focus(), 0);
+        }
+        document.querySelectorAll('[data-open-operation]').forEach(button => button.addEventListener('click', () => setOperationModal(true)));
+        document.getElementById('close-operation').addEventListener('click', () => setOperationModal(false));
+        document.getElementById('cancel-operation').addEventListener('click', () => setOperationModal(false));
+        operationModal.addEventListener('click', event => { if (event.target === operationModal) setOperationModal(false); });
+        document.addEventListener('keydown', event => { if (event.key === 'Escape' && !operationModal.hidden) setOperationModal(false); });
+
+        document.getElementById('operation-form').addEventListener('submit', event => {
+            event.preventDefault();
+            const buyer = document.getElementById('new-buyer').value.trim();
+            const amount = Number(document.getElementById('new-amount').value);
+            const id = `ESC-${Math.floor(2900 + Math.random() * 99)}`;
+            const row = document.createElement('tr');
+            row.dataset.state = 'review';
+            row.dataset.search = `${id} ${buyer}`.toLowerCase();
+            row.innerHTML = `<td>${id}</td><td></td><td>${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(amount)}</td><td><span class="status review">● Validando</span></td><td>Ahora</td><td><button class="row-action" type="button" data-operation="${id}">Ver detalle</button></td>`;
+            row.children[1].textContent = buyer;
+            document.getElementById('operations-table').prepend(row);
+            const recentRow = document.createElement('tr');
+            recentRow.innerHTML = `<td>${id}</td><td></td><td>${new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(amount)}</td><td><span class="status review">● Validando</span></td><td>Ahora</td>`;
+            recentRow.children[1].textContent = buyer;
+            document.getElementById('recent-operations').prepend(recentRow);
+            document.getElementById('active-count').textContent = String(Number(document.getElementById('active-count').textContent) + 1);
+            event.target.reset();
+            setOperationModal(false);
+            navigate('transactions');
+            filterOperations();
+            showToast(`${id} creada. Validación multiagente iniciada.`);
+        });
+
+        function filterOperations() {
+            const query = document.getElementById('operation-search').value.trim().toLowerCase();
+            const state = document.getElementById('operation-filter').value;
+            let visible = 0;
+            document.querySelectorAll('#operations-table tr').forEach(row => {
+                const match = (!query || row.dataset.search.includes(query)) && (state === 'all' || row.dataset.state === state);
+                row.hidden = !match;
+                if (match) visible++;
+            });
+            document.getElementById('operation-result-count').textContent = `${visible} resultado${visible === 1 ? '' : 's'}`;
+        }
+        document.getElementById('operation-search').addEventListener('input', filterOperations);
+        document.getElementById('operation-filter').addEventListener('change', filterOperations);
+
+        function loadCase(key) {
+            activeCase = cases[key] ? key : 'pep';
+            const item = cases[activeCase];
+            document.getElementById('case-id').textContent = item.id;
+            document.getElementById('case-title').textContent = item.title;
+            document.getElementById('case-subject').textContent = item.subject;
+            document.getElementById('case-source').textContent = item.source;
+            document.getElementById('case-confidence').textContent = item.confidence;
+            document.getElementById('case-amount').textContent = item.amount;
+            document.getElementById('case-description').textContent = item.description;
+            document.getElementById('decision-note').value = '';
+            document.querySelectorAll('[data-select-case]').forEach(button => button.classList.toggle('active', button.dataset.selectCase === activeCase));
+            const resolved = document.querySelector(`[data-select-case="${activeCase}"]`).disabled;
+            document.getElementById('approve-case').disabled = resolved;
+            document.getElementById('reject-case').disabled = resolved;
+        }
+        document.querySelectorAll('[data-case]').forEach(button => button.addEventListener('click', () => { navigate('risk'); loadCase(button.dataset.case); }));
+        document.querySelectorAll('[data-select-case]').forEach(button => button.addEventListener('click', () => loadCase(button.dataset.selectCase)));
+
+        function resolveCase(approved) {
+            const item = cases[activeCase];
+            if (!item) return;
+            const selected = document.querySelector(`[data-select-case="${activeCase}"]`);
+            selected.disabled = true;
+            selected.classList.add('resolved');
+            selected.querySelector('.status').className = `status ${approved ? 'approved' : 'blocked'}`;
+            selected.querySelector('.status').textContent = approved ? 'Aprobado' : 'Rechazado';
+            pendingCases = Math.max(0, pendingCases - 1);
+            ['review-count', 'queue-count', 'risk-heading-count'].forEach(id => document.getElementById(id).textContent = String(pendingCases));
+            document.getElementById('agent-pending').textContent = `${pendingCases} caso${pendingCases === 1 ? '' : 's'}`;
+            document.getElementById('approve-case').disabled = true;
+            document.getElementById('reject-case').disabled = true;
+            showToast(`${item.id} ${approved ? 'aprobada como falso positivo' : 'rechazada y marcada para reembolso'}.`, approved ? 'success' : 'danger');
+        }
+        document.getElementById('approve-case').addEventListener('click', () => resolveCase(true));
+        document.getElementById('reject-case').addEventListener('click', () => resolveCase(false));
+
+        document.addEventListener('click', event => {
+            const operationButton = event.target.closest('[data-operation]');
+            if (operationButton) showToast(`${operationButton.dataset.operation}: expediente y auditoría disponibles en modo demostración.`);
+        });
+        document.querySelectorAll('.agent-test').forEach(button => button.addEventListener('click', () => {
+            button.disabled = true;
+            button.textContent = 'Comprobando…';
+            setTimeout(() => { button.disabled = false; button.textContent = 'Probar conexión'; showToast(`${button.dataset.agent}: conexión verificada.`); }, 700);
+        }));
+        document.getElementById('refresh-agents').addEventListener('click', event => {
+            event.currentTarget.classList.add('is-loading');
+            setTimeout(() => { event.currentTarget.classList.remove('is-loading'); showToast('Estado de los 4 agentes actualizado.'); }, 700);
+        });
+
+        function getInitials(name) {
+            return name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase() || 'US';
+        }
+        function renderAccount() {
+            const name = session.name || 'Mariana Torres';
+            const role = session.role || 'Oficial de Cumplimiento';
+            const email = session.email || 'compliance@escrowguard.mx';
+            document.getElementById('profile-name').textContent = name;
+            document.getElementById('profile-role').textContent = role;
+            document.querySelector('.profile-avatar').textContent = getInitials(name);
+            document.getElementById('account-avatar').textContent = getInitials(name);
+            document.getElementById('account-display-name').textContent = name;
+            document.getElementById('account-display-role').textContent = role;
+            document.getElementById('account-name').value = name;
+            document.getElementById('account-email').value = email;
+            document.getElementById('account-role').value = role;
+            document.getElementById('account-company').value = session.company || 'EscrowGuard México';
+            document.getElementById('account-phone').value = session.phone || '+52 55 1234 5678';
+        }
+        document.getElementById('account-form').addEventListener('submit', event => {
+            event.preventDefault();
+            session = { ...session, name: document.getElementById('account-name').value.trim(), email: document.getElementById('account-email').value.trim(), role: document.getElementById('account-role').value.trim(), company: document.getElementById('account-company').value.trim(), phone: document.getElementById('account-phone').value.trim() };
+            localStorage.setItem('escrow_guard_session', JSON.stringify(session));
+            renderAccount();
+            showToast(document.documentElement.lang === 'en' ? 'Account information saved.' : 'Información de cuenta guardada.');
+        });
+        document.querySelectorAll('[data-language]').forEach(button => button.addEventListener('click', () => { applyLanguage(button.dataset.language); showToast(button.dataset.language === 'en' ? 'Language changed to English.' : 'Idioma cambiado a español.'); }));
+        document.querySelectorAll('[data-theme-choice]').forEach(button => button.addEventListener('click', () => applyTheme(button.dataset.themeChoice)));
+
+        renderAccount();
+        applyLanguage(localStorage.getItem('escrow_guard_lang') || 'es');
+        navigate(location.hash.slice(1) || 'overview', false);
+    </script>
+</body>
+</html>
