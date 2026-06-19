@@ -861,8 +861,70 @@
             showHITLModal(false);
             const svgPath = document.getElementById('svg-flow-progress');
 
+            if (connectionMode === 'live') {
+                writeLog(`[LIVE-API] Enviando decisión DPO '${decision}' al backend...`, 'hitl');
+                try {
+                    const response = await fetch(`http://localhost:8000/api/transaction/${activeTransactionId}/resolve`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ decision: decision })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Código HTTP del backend: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.status !== "success") {
+                        throw new Error(data.detail || "Error al resolver la transacción en el servidor.");
+                    }
+
+                    writeLog(`[LIVE-API] Decisión DPO registrada en el servidor con éxito.`, 'system');
+                    
+                    // Reproducir únicamente los nuevos logs del DPO y liquidación
+                    const dpoLogIndex = data.logs.findIndex(log => log.includes('[DPO Portal]') || log.includes('Decisión de cumplimiento'));
+                    const newLogs = dpoLogIndex !== -1 ? data.logs.slice(dpoLogIndex) : data.logs;
+                    
+                    for (const logLineText of newLogs) {
+                        let agentType = 'system';
+                        if (logLineText.includes('liberados') || logLineText.includes('reembolsados') || logLineText.includes('banco') || logLineText.includes('bancario')) agentType = 'bank';
+                        else if (logLineText.includes('DPO') || logLineText.includes('Cumplimiento') || logLineText.includes('Portal')) agentType = 'hitl';
+                        else if (logLineText.includes('⚠️') || logLineText.includes('denegada') || logLineText.includes('cancelada')) agentType = 'error';
+
+                        writeLog(logLineText, agentType);
+                        await new Promise(r => setTimeout(r, 400));
+                    }
+
+                    if (decision === 'APROBAR') {
+                        updateNodeState('node-d', 'success');
+                        svgPath.style.strokeDashoffset = '-1000';
+                        await new Promise(r => setTimeout(r, 600));
+                        updateNodeState('node-e', 'success');
+                        endSimulation(true);
+                    } else {
+                        updateNodeState('node-d', 'error');
+                        svgPath.style.strokeDashoffset = '-1000';
+                        await new Promise(r => setTimeout(r, 600));
+                        updateNodeState('node-e', 'error');
+                        endSimulation(false);
+                    }
+
+                } catch (err) {
+                    writeLog(`Error al enviar resolución DPO al backend: ${err.message}`, 'error');
+                    writeLog(`[SANDBOX] Continuando con simulación local.`, 'system');
+                    await runLocalResolve(decision, svgPath);
+                }
+            } else {
+                await runLocalResolve(decision, svgPath);
+            }
+        }
+
+        async function runLocalResolve(decision, svgPath) {
             if (decision === 'APROBAR') {
-                writeLog(`DPO decició APROBAR la operación. Registrado como Falso Positivo.`, 'hitl');
+                writeLog(`DPO decidió APROBAR la operación. Registrado como Falso Positivo.`, 'hitl');
                 updateNodeState('node-d', 'success');
                 
                 svgPath.style.strokeDashoffset = '-1000';

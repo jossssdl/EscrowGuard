@@ -110,6 +110,11 @@ class EscrowRoomListener(RoomListener):
                         f"Los fondos de garantía de custodia han sido liberados inmediatamente al vendedor.\n"
                         f"**Estatus actual:** Completada."
                     )
+                    # Sincronizar con el almacén de sesiones
+                    if tx_id in session_state_store:
+                        session_state_store[tx_id]["estado_transaccion"] = "APPROVED"
+                        session_state_store[tx_id]["logs"].append("👨‍⚖️ [DPO Chat] Decisión de cumplimiento recibida: APROBAR")
+                        session_state_store[tx_id]["logs"].append(f"✅ Fondos liberados para la transacción {tx_id}. Operación completada con éxito.")
                 else:
                     room.send_message(f"⚠️ Error al intentar liberar los fondos para `{tx_id}`.")
             else:
@@ -121,6 +126,11 @@ class EscrowRoomListener(RoomListener):
                         f"Los fondos han sido devueltos a la cuenta origen del comprador preventivamente.\n"
                         f"**Estatus actual:** Cancelada."
                     )
+                    # Sincronizar con el almacén de sesiones
+                    if tx_id in session_state_store:
+                        session_state_store[tx_id]["estado_transaccion"] = "REJECTED"
+                        session_state_store[tx_id]["logs"].append("👨‍⚖️ [DPO Chat] Decisión de cumplimiento recibida: RECHAZAR")
+                        session_state_store[tx_id]["logs"].append(f"🚨 Fondos reembolsados y devueltos al comprador para la transacción {tx_id}. Operación denegada.")
                 else:
                     room.send_message(f"⚠️ Error al intentar reembolsar los fondos para `{tx_id}`.")
             
@@ -245,6 +255,51 @@ def obtener_estado_transaccion(transaction_id: str):
         raise HTTPException(status_code=404, detail="Transacción no encontrada.")
         
     return transaccion
+
+
+class ResolveTransactionInput(BaseModel):
+    decision: str = Field(..., example="APROBAR", description="La decisión del Oficial de Cumplimiento (DPO): APROBAR o RECHAZAR")
+
+@app.post("/api/transaction/{transaction_id}/resolve", response_model=Dict[str, Any])
+def resolver_transaccion(transaction_id: str, input_data: ResolveTransactionInput):
+    """
+    Registra la decisión manual del Oficial de Cumplimiento (DPO) en el backend.
+    """
+    transaccion = session_state_store.get(transaction_id)
+    if not transaccion:
+        raise HTTPException(status_code=404, detail="Transacción no encontrada.")
+        
+    decision = input_data.decision.upper().strip()
+    if decision not in ["APROBAR", "RECHAZAR"]:
+        raise HTTPException(status_code=400, detail="Decisión no válida. Debe ser 'APROBAR' o 'RECHAZAR'.")
+        
+    logs = list(transaccion.get("logs", []))
+    logs.append(f"👨‍⚖️ [DPO Portal] Decisión de cumplimiento recibida: {decision}")
+    
+    if decision == "APROBAR":
+        exito = bank_service.liberar_fondos(transaction_id)
+        if not exito:
+            raise HTTPException(status_code=500, detail="Error al liberar los fondos en el banco.")
+        transaccion["estado_transaccion"] = "APPROVED"
+        logs.append(f"✅ Fondos liberados para la transacción {transaction_id}. Operación completada con éxito.")
+    else:
+        exito = bank_service.reembolsar_fondos(transaction_id)
+        if not exito:
+            raise HTTPException(status_code=500, detail="Error al reembolsar los fondos en el banco.")
+        transaccion["estado_transaccion"] = "REJECTED"
+        logs.append(f"🚨 Fondos reembolsados y devueltos al comprador para la transacción {transaction_id}. Operación denegada.")
+        
+    transaccion["logs"] = logs
+    session_state_store[transaction_id] = transaccion
+    
+    return {
+        "status": "success",
+        "transaction_id": transaction_id,
+        "estado_final": transaccion["estado_transaccion"],
+        "logs": transaccion["logs"],
+        "comprador": transaccion.get("comprador_data"),
+        "osint": transaccion.get("resultado_osint")
+    }
 
 
 # --- Bloque de Inicio de la Aplicación ---
