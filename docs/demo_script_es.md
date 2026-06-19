@@ -1,66 +1,70 @@
 # EscrowGuard - Guion para Video Demo (Español)
 
-**Duración Objetivo:** ~4 minutos (menos de 5 minutos)
-**Estilo Visual:** Grabación de pantalla del dashboard combinada con narración (voz en off).
+**Duración Objetivo:** ~4.5 minutos (menos de 5 minutos)
+**Estilo Visual:** Grabación de pantalla del Landing Page, Acceso y el Portal de Operador (Dashboard), acompañada de narración dinámica (voz en off).
 
 ---
 
-### Parte 1: El Gancho y el Problema (0:00 - 0:45)
+### Parte 1: Introducción y el Problema (0:00 - 0:45)
 
-* **Visual:** Comienza con un plano general del dashboard de **EscrowGuard**, mostrando el indicador pulsante de "AI Shield Active" y las tarjetas de Threat Intelligence (99.9% de precisión PLD) y latencia de API.
+* **Visual:** Plano detalle de la landing page de **EscrowGuard**, mostrando el título, los contadores HUD dinámicos ("Active Pools: 12", "Secured Vol: $4.2M") y el selector de modo configurado en **Live API**.
 * **Audio (Voz en off):** 
-  > "Cada día, millones de dólares se aseguran en transacciones de depósito en garantía o escrows. Sin embargo, garantizar el cumplimiento legal y financiero es una pesadilla administrativa. Las plataformas tradicionales sufren para validar identidades, prevenir lavado de dinero y gestionar revisiones manuales, provocando fraudes o costosos retrasos.
+  > "Asegurar los depósitos en garantía y garantizar el cumplimiento legal en transacciones de alto valor es una pesadilla operativa. El fraude de identidad, el lavado de dinero y el cruce manual de listas suelen generar retrasos costosos o graves riesgos regulatorios.
   > 
-  > Les presentamos **EscrowGuard**—el sindicato multiagente autónomo definitivo, diseñado para asegurar activos digitales y fideicomisos con cumplimiento de nivel bancario, impulsado por LangGraph, PydanticAI y CrewAI."
+  > Les presentamos **EscrowGuard**—una plataforma de depósito en garantía autónoma y multiagente que automatiza el cumplimiento legal, asegura los fondos y conecta el trabajo de los agentes de IA con la supervisión humana bajo el paradigma Human-in-the-Loop."
 
 ---
 
-### Parte 2: El Sindicato de Agentes (0:45 - 1:30)
+### Parte 2: El Simulador de la Landing Page (0:45 - 1:45)
 
-* **Visual:** Desplazamiento hacia la sección de "El Sindicato de Agentes Inteligentes", pasando el cursor por los cuatro agentes clave:
-  1. *Extractor AI* (PydanticAI)
-  2. *Banco Fideicomiso* (SPEI Mock)
-  3. *OSINT Risk* (CrewAI)
-  4. *Human HITL* (DPO Portal)
+* **Visual:** Desplazamiento hacia el simulador interactivo de la landing. Selecciona el preset **Limpio** (`cliente_limpio.pdf`) y haz clic en **Iniciar Simulación de Depósito**. Se observa el avance de los nodos: Extractor AI, Banco Mock, OSINT Risk y finalmente la aprobación automática.
 * **Audio (Voz en off):**
-  > "EscrowGuard opera mediante un sindicato cooperativo de agentes de inteligencia artificial que gestionan todo el ciclo de vida de la transacción:
-  > - Primero, el **Extractor AI** lee los documentos de identidad y valida la información.
-  > - Segundo, el **Banco Fideicomiso** interactúa con la capa bancaria para bloquear preventivamente los fondos mediante un SPEI simulado.
-  > - Tercero, el agente de **OSINT Risk** analiza bases de datos de sanciones internacionales y nacionales (OFAC, SAT, PEP).
-  > - Y cuarto, si se detecta un posible riesgo, el agente de **Human HITL** pausa el flujo de ejecución, notificando al Oficial de Cumplimiento (DPO) para una resolución manual."
+  > "Directamente en nuestra landing page, los clientes pueden probar el sistema en tiempo real. Estamos utilizando nuestra Live API conectada al servidor, que corre bajo Gemini 2.5 Flash.
+  > 
+  > Corramos una transacción limpia. El **Extractor AI** lee el pasaporte en PDF, el **Banco Escrow** retiene los fondos preventivamente y el agente de **OSINT Risk** analiza las bases de datos de sanciones. 
+  > 
+  > Dado que este comprador está libre de riesgos, el sindicato aprueba el depósito y libera los fondos al vendedor de manera automática. Automatización completa y sin fricciones."
 
 ---
 
-### Parte 3: Demostración en Vivo - Flujo Limpio (1:30 - 2:30)
+### Parte 3: Acceso Seguro al Sistema (1:45 - 2:15)
 
-* **Visual:** Regresa al panel HUD interactivo. Cambia el modo de conexión a **Live API**. Haz clic en el preset **Limpio**, cargando la plantilla `cliente_limpio.pdf`. Haz clic en **Iniciar Simulación de Depósito**. Observa los logs en la consola en tiempo real y la iluminación secuencial de los nodos: A -> B -> C -> D -> E (todos en verde).
+* **Visual:** Haz clic en el enlace "Iniciar sesión" en la parte superior derecha. Muestra la pantalla de acceso. El correo `compliance@escrowguard.mx` y contraseña `EscrowGuard2026` ya vienen preestablecidos. Haz clic en **Entrar al sistema**.
 * **Audio (Voz en off):**
-  > "Veámoslo en acción. Conectados directamente a nuestra Live API de FastAPI, cargamos el escenario limpio e iniciamos la simulación.
+  > "¿Pero qué ocurre tras bambalinas cuando se detecta un posible riesgo? Entremos al portal del operador.
   > 
-  > Inmediatamente, el Extractor AI analiza el PDF del pasaporte y extrae la información del comprador. El Banco retiene preventivamente los $1.2M MXN. El agente OSINT de CrewAI realiza la investigación web y confirma que el comprador no tiene antecedentes ni coincide con listas OFAC.
-  > 
-  > Al estar limpio, el sistema aprueba automáticamente la transacción y libera los fondos al vendedor de forma instantánea. Fluido, seguro y rápido."
+  > Usando las credenciales precargadas de nuestro Oficial de Cumplimiento, accedemos de forma segura al centro operativo."
 
 ---
 
-### Parte 4: Demostración en Vivo - Pasaporte Personalizado y DPO HITL (2:30 - 3:45)
+### Parte 4: El Portal Operativo y los Agentes de IA (2:15 - 3:00)
 
-* **Visual:** Arrastra y suelta un pasaporte personalizado (ej. `Pasaporte (1).pdf`), mostrando cómo se sube al servidor. Escribe en el nombre del comprador **YAEL OSCAR AVILA CAMARGO** y nacimiento **15/09/2003**. Haz clic en **Iniciar Simulación de Depósito**. Los nodos avanzan y, al llegar al Nodo D (Compliance), parpadea en color ámbar y emerge el modal de decisión del DPO detallando la coincidencia de apellidos con el PEP `JOSÉ CRISTIAN AVILA DIRCIO`. Haz clic en **Aprobar Falso Positivo (DPO)**. El Nodo E se ilumina en verde.
+* **Visual:** Muestra la pantalla de inicio del portal (`dashboard.html`). Pasa el cursor por las métricas ($4.2M Fondos protegidos, 12 Operaciones activas, 99.8% Precisión PLD, 2 Casos de revisión humana). Ve a la pestaña **Agentes** en la barra lateral y muestra el estado y latencias de los 4 agentes.
 * **Audio (Voz en off):**
-  > "Ahora probemos el verdadero poder de EscrowGuard: el cumplimiento dinámico y el descarte inteligente de homónimos. Arrastramos un pasaporte personalizado. El frontend lo sube a nuestro servidor mediante la API, e ingresamos el nombre: Yael Oscar Avila Camargo.
+  > "Este es el Portal Operativo de EscrowGuard. Aquí, los oficiales de cumplimiento supervisan los fondos protegidos, los escrows activos y los casos pendientes de revisión humana.
   > 
-  > Al iniciar la simulación, el agente OSINT detecta que el comprador comparte el apellido 'Avila' con un PEP sancionado en listas de riesgo.
-  > 
-  > En lugar de bloquear la transacción injustificadamente o dejarla pasar sin control, EscrowGuard activa la revisión interactiva. Emerge el modal del DPO mostrando la discrepancia biométrica: el comprador tiene 23 años, pero el PEP sancionado tiene 46.
-  > 
-  > El oficial revisa, hace clic en 'Aprobar Falso Positivo' y los fondos se liberan de inmediato. El backend registra y audita toda la resolución en tiempo real."
+  > En la pestaña de **Agentes**, monitoreamos en tiempo real el estado, latencias y conexión de nuestros agentes cooperativos: Extractor AI, Banco Escrow, OSINT Risk y Compliance HITL. Todos operando al cien por ciento."
 
 ---
 
-### Parte 5: Cierre y Propuesta de Valor (3:45 - 4:00)
+### Parte 5: Resolución de Alerta HITL (3:00 - 4:15)
 
-* **Visual:** Muestra los logs finales en verde indicando que el fideicomiso se completó de forma ultra-segura. Termina con el dashboard principal en pantalla.
+* **Visual:** Haz clic en la pestaña **Cumplimiento**. Muestra la cola de casos pendientes (Carlos Ávila por homónimo y SAT 69-B). Selecciona a **Carlos Ávila**. Lee los detalles de la pantalla: nombre "Carlos Ávila Dircio" vs PEP "JOSÉ CRISTIAN AVILA DIRCIO" (discrepancia de nacimiento). Escribe en la nota de resolución: *"Fecha de nacimiento validada. Descartado como falso positivo. Liberando fondos."* Haz clic en **Aprobar falso positivo**. Se muestra el toast de éxito y los pendientes bajan de 2 a 1.
 * **Audio (Voz en off):**
-  > "Al conectar sistemas multiagente autónomos con criterios y decisiones humanas de cumplimiento, EscrowGuard mitiga fraudes, reduce las cargas operativas de cumplimiento en un 90% y brinda total certeza jurídica y financiera.
+  > "Resolvamos un caso pendiente en nuestra cola de cumplimiento.
+  > 
+  > Seleccionamos el caso de Carlos Ávila. El sistema ha detectado una coincidencia potencial por apellido con un PEP. Sin embargo, al contrastar los datos biométricos, vemos que el comprador tiene una fecha de nacimiento distinta al PEP sancionado. Se trata de un falso positivo.
+  > 
+  > Redactamos nuestra nota de auditoría, hacemos clic en 'Aprobar falso positivo' y el sistema instruye al Banco Escrow para liberar los fondos de inmediato. El caso queda resuelto y registrado en el historial de auditoría."
+
+---
+
+### Parte 6: Multilingüe y Cierre (4:15 - 4:45)
+
+* **Visual:** Haz clic en el botón **EN** del switch de idioma en la parte superior. La interfaz del dashboard, barra lateral, métricas y detalles del caso cambian instantáneamente a inglés. Termina con el dashboard principal en pantalla.
+* **Audio (Voz en off):**
+  > "Por último, todo el portal cuenta con soporte de localización instantánea. Con un solo clic, la interfaz cambia de español a inglés, facilitando operaciones de cumplimiento global.
+  > 
+  > EscrowGuard une la potencia de agentes autónomos con el criterio humano, protegiendo transacciones de alto valor con cero fricciones.
   > 
   > EscrowGuard: El futuro de la custodia de activos inteligente y en cumplimiento. Muchas gracias."
