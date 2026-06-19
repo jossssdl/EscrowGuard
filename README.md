@@ -14,29 +14,29 @@ EscrowGuard integrates autonomous and cooperative LLM agents, a secure state mac
 
 ```mermaid
 graph TD
-    subgraph Frontend Client (SPA)
-        UI[Landing Page & Dashboard]
-        Portal[DPO Compliance Portal]
-        Engine[Sandbox Simulation Engine]
-        Controller[JS API Orchestrator]
+    subgraph Client ["Frontend Client (SPA)"]
+        UI["Landing Page & Dashboard"]
+        Portal["DPO Compliance Portal"]
+        Engine["Sandbox Simulation Engine"]
+        Controller["JS API Orchestrator"]
     end
     
-    subgraph Backend Core (FastAPI Server)
-        API[FastAPI REST Endpoints]
-        Listener[EscrowRoomListener]
-        Store[(In-Memory Session Store)]
+    subgraph Server ["Backend Core (FastAPI Server)"]
+        API["FastAPI REST Endpoints"]
+        Listener["EscrowRoomListener"]
+        Store["In-Memory Session Store"]
     end
     
-    subgraph Syndicate of Agents & Services
-        LG[LangGraph Orchestrator]
-        Ext[Extractor Agent - PydanticAI]
-        OS[OSINT Agent - CrewAI]
-        Bank[SPEI / Escrow Bank Mock]
-        DB[OFAC / PEP Sanctions DB]
+    subgraph Syndicate ["Syndicate of Agents & Services"]
+        LG["LangGraph Orchestrator"]
+        Ext["Extractor Agent - PydanticAI"]
+        OS["OSINT Agent - CrewAI"]
+        Bank["SPEI / Escrow Bank Mock"]
+        DB["OFAC / PEP Sanctions DB"]
     end
     
-    subgraph External Platform
-        Band[Band.ai SDK / Chat Room]
+    subgraph External ["External Platform"]
+        Band["Band.ai SDK / Chat Room"]
     end
 
     UI --> Engine
@@ -63,6 +63,7 @@ graph TD
     class API,Listener,Store server;
     class LG,Ext,OS,Bank,DB agents;
     class Band ext;
+
 ```
 
 ---
