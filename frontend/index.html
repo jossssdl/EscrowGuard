@@ -561,6 +561,7 @@
     <script>
         // Configuración Inicial & Traducciones
         let connectionMode = 'sandbox'; // 'sandbox' o 'live'
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:8000' : '';
         let currentPreset = 'clean';
         let isRunning = false;
         let activeTransactionId = null;
@@ -1137,7 +1138,7 @@
                 
                 try {
                     writeLog(`[LIVE-API] Subiendo archivo '${file.name}' al servidor para análisis dinámico...`, 'system');
-                    const response = await fetch('http://localhost:8000/api/upload', {
+                    const response = await fetch(`${API_BASE}/api/upload`, {
                         method: 'POST',
                         body: formData
                     });
@@ -1448,7 +1449,7 @@
             if (connectionMode === 'live') {
                 writeLog('log-live-dpo-sending', 'hitl', { decision: decision });
                 try {
-                    const response = await fetch(`http://localhost:8000/api/transaction/${activeTransactionId}/resolve`, {
+                    const response = await fetch(`${API_BASE}/api/transaction/${activeTransactionId}/resolve`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1549,7 +1550,7 @@
             writeLog('log-live-connecting', 'system');
 
             try {
-                const response = await fetch('http://localhost:8000/api/simulate', {
+                const response = await fetch(`${API_BASE}/api/simulate`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

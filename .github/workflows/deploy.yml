@@ -1,0 +1,23 @@
+name: Deploy EscrowGuard
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 3.17.71.247
+          username: ubuntu
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/HACKATHON_BAND_OF_AGENTS
+            git fetch --all
+            git reset --hard origin/main
+            /home/ubuntu/HACKATHON_BAND_OF_AGENTS/backend/.venv/bin/pip install -r backend/requirements.txt
+            sudo systemctl restart escrowguard-backend.service
