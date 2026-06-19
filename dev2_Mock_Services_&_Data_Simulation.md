@@ -1,11 +1,3 @@
-¡Claro que sí! Con mucho gusto te ayudo a estructurar tu propio documento técnico basándome en el formato, el tono y la estructura de los ejemplos que me acabas de proporcionar.
-
-Este documento reflejará tu contribución esencial en el proyecto (Dev 2 - Mock Services & Data Simulation), manteniendo la estética y el nivel de detalle técnico (Mocks, UIF, SAT, JSON responses, SPEI, etc.) de la serie `Script Hunters - EscrowGuard`.
-
-Aquí tienes tu documento en formato Markdown (`.md`):
-
----
-
 # Technical Specification for Mock Services & Compliance Data Simulation (Dev 2)
 
 🏢 Script Hunters - EscrowGuard
