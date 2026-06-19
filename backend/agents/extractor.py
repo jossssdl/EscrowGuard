@@ -153,7 +153,7 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
             return EntidadesExtraidas(
                 nombre_completo="CARLOS AVILA DIRCIO",
                 fecha_nacimiento="1992-07-14",
-                numero_documento="MX-556677",
+                numero_documento="N55667789",
                 nacionalidad="MEXICO",
                 tipo_documento="Pasaporte"
             )

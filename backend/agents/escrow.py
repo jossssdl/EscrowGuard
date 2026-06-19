@@ -27,20 +27,49 @@ osint_orchestrator = OSINTOchestrator()
 
 # Definición de los Nodos del Grafo
 
+import os
+
 def nodo_extraccion(state: EscrowState) -> Dict[str, Any]:
     """
     Nodo de extracción de datos del comprador del pasaporte.
     """
     logs = list(state.get("logs", []))
-    logs.append("Iniciando análisis de documento y extracción...")
+    archivo = state.get("archivo_entrada")
     
-    # Se recupera el archivo de entrada provisto, o se utiliza el caso por defecto
-    archivo = state.get("archivo_entrada") or "Juan Pérez"
-    logs.append(f"Leyendo documento: {archivo}")
+    # Verificar si el archivo PDF existe físicamente en el servidor
+    existe_archivo = False
+    if archivo and archivo.lower().endswith(".pdf"):
+        if os.path.exists(archivo):
+            existe_archivo = True
+        else:
+            posible_1 = os.path.join("mock_docs", archivo)
+            posible_2 = os.path.join("backend", "mock_docs", archivo)
+            if os.path.exists(posible_1) or os.path.exists(posible_2):
+                existe_archivo = True
+
+    # Si el archivo no existe en el servidor y tenemos datos de comprador, los respetamos (Modo Dinámico)
+    if not existe_archivo and state.get("comprador_data") and state["comprador_data"].get("nombre_completo"):
+        logs.append("ℹ️ Archivo no localizado en el servidor o simulación dinámica detectada.")
+        logs.append(f"Usando datos de comprador ingresados directamente en el formulario: {state['comprador_data']['nombre_completo']}")
+        return {
+            "logs": logs
+        }
+        
+    logs.append("Iniciando análisis de documento y extracción...")
+    archivo_a_procesar = archivo or "Juan Pérez"
+    logs.append(f"Leyendo documento: {archivo_a_procesar}")
     
     # Invocar al agente extractor de PydanticAI
-    datos_comprador = extractor_agent.run_sync(archivo)
+    datos_comprador = extractor_agent.run_sync(archivo_a_procesar)
     
+    nombre_extraido = datos_comprador.nombre_completo
+    # Si la extracción falló o no detectó el nombre de una persona, y tenemos datos en el formulario, los usamos
+    if (not nombre_extraido or "NO_DETECTADO" in nombre_extraido or nombre_extraido.strip() == "") and state.get("comprador_data") and state["comprador_data"].get("nombre_completo"):
+        logs.append(f"Extractor AI reportó '{nombre_extraido}'. Usando datos de comprador del formulario como respaldo.")
+        return {
+            "logs": logs
+        }
+        
     logs.append(f"Datos extraídos con éxito: {datos_comprador.nombre_completo}")
     
     return {
@@ -102,8 +131,8 @@ def evaluador_de_riesgos(state: EscrowState) -> str:
         fecha_pasaporte = comprador.get("fecha_nacimiento")
         fecha_sancion = resultado["sancion_data"].get("fecha_nacimiento")
         
-        if fecha_pasaporte == fecha_sancion:
-            # Los cumpleaños coinciden -> Rechazo directo (Riesgo Confirmado)
+        if fecha_sancion == "N/A" or fecha_pasaporte == fecha_sancion:
+            # Los cumpleaños coinciden o es una entidad corporativa (N/A) -> Rechazo directo (Riesgo Confirmado)
             return "rechazar"
         else:
             # El nombre coincide pero los cumpleaños no -> Coincidencia potencial / Falso Positivo -> HITL

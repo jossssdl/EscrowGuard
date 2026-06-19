@@ -7,11 +7,12 @@ Integra la API FastAPI y la escucha en tiempo real de salas de Band Pro.
 
 import os
 import uvicorn
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
+import shutil
 
 # Carga de variables de entorno
 load_dotenv()
@@ -196,6 +197,29 @@ class EscrowRoomListener(RoomListener):
                         room.send_message(f"❌ **FALLO CRÍTICO:** Ocurrió un error en el motor de ejecución: {str(e)}")
 
 # --- Endpoints de FastAPI ---
+
+@app.post("/api/upload")
+def upload_file(file: UploadFile = File(...)):
+    """
+    Recibe un archivo PDF de pasaporte y lo guarda localmente en el servidor
+    para que pueda ser procesado dinámicamente por el agente extractor.
+    """
+    filename = file.filename
+    # Asegurar que las carpetas existan
+    os.makedirs("backend/mock_docs", exist_ok=True)
+    os.makedirs("mock_docs", exist_ok=True)
+    
+    file_path_1 = os.path.join("backend/mock_docs", filename)
+    file_path_2 = os.path.join("mock_docs", filename)
+    
+    try:
+        with open(file_path_1, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        # Copiar al segundo path para asegurar que la resolución del Extractor lo encuentre
+        shutil.copy2(file_path_1, file_path_2)
+        return {"status": "success", "filename": filename}
+    except Exception as e:
+        return {"status": "error", "detail": f"Error al guardar archivo: {str(e)}"}
 
 @app.post("/api/simulate", response_model=Dict[str, Any])
 def simular_transaccion(input_data: SimularTransaccionInput):

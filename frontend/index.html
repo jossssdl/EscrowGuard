@@ -1028,7 +1028,7 @@
             fp: {
                 buyer: "CARLOS AVILA DIRCIO",
                 dob: "1992-07-14",
-                doc: "MX-556677",
+                doc: "N55667789",
                 nat: "MEXICANA",
                 amount: 5000000,
                 file: "solicitud_sat.pdf"
@@ -1123,14 +1123,35 @@
             handleFiles(files);
         }
 
-        function handleFiles(files) {
+        async function handleFiles(files) {
             if (files.length === 0) return;
             const file = files[0];
             const name = file.name.toLowerCase();
 
             document.getElementById('drag-title').innerText = getTranslation('drag-success');
             document.getElementById('drag-filename').innerText = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-            
+
+            if (connectionMode === 'live') {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    writeLog(`[LIVE-API] Subiendo archivo '${file.name}' al servidor para análisis dinámico...`, 'system');
+                    const response = await fetch('http://localhost:8000/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        writeLog(`[LIVE-API] Archivo '${file.name}' subido con éxito al servidor.`, 'system');
+                    } else {
+                        writeLog(`[LIVE-API] Advertencia: Código de error al subir archivo al servidor.`, 'error');
+                    }
+                } catch (err) {
+                    writeLog(`[LIVE-API] Error de red al subir archivo: ${err.message}`, 'error');
+                }
+            }
+
             writeLog('log-file-loaded', 'bank', { file: file.name });
 
             // Detect matching preset
@@ -1141,8 +1162,14 @@
             } else if (name.includes('fantasma') || name.includes('cristian') || name.includes('sanction')) {
                 selectPreset('true');
             } else {
-                // Default clean
-                selectPreset('clean');
+                // Archivo personalizado: Desmarcar presets
+                currentPreset = 'custom';
+                document.querySelectorAll('[id^="preset-"]').forEach(btn => {
+                    btn.classList.remove('border-white/20');
+                    btn.classList.add('border-white/5');
+                });
+                
+                // Actualizar solo el nombre del archivo, dejar los campos del formulario libres para edición
                 document.getElementById('input-file-name').value = file.name;
                 writeLog('log-custom-file', 'extractor');
             }
@@ -1294,8 +1321,47 @@
             
             updateNodeState('node-c', 'active');
             
-            // Decisión según preset
-            if (currentPreset === 'clean') {
+            // Decisión dinámica en base a los inputs del usuario (Sandbox)
+            const nombreNormalizado = buyer.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            const palabrasComprador = nombreNormalizado.split(/\s+/).filter(w => w.length > 0);
+            
+            let tieneAlerta = false;
+            let esHomonimo = false;
+            let pepNombre = "JOSÉ CRISTIAN AVILA DIRCIO";
+            let pepDob = "1985-08-20";
+            
+            // Buscar coincidencias dinámicamente con PEPs
+            const pepSurnames = ["AVILA", "DIRCIO"];
+            const hasPepSurname = pepSurnames.some(surname => palabrasComprador.includes(surname));
+            
+            if (nombreNormalizado.includes("JOSE CRISTIAN AVILA DIRCIO")) {
+                tieneAlerta = true;
+                pepNombre = "JOSÉ CRISTIAN AVILA DIRCIO";
+                pepDob = "1985-08-20";
+                if (dob !== pepDob) {
+                    esHomonimo = true;
+                }
+            } else if (hasPepSurname) {
+                tieneAlerta = true;
+                pepNombre = "JOSÉ CRISTIAN AVILA DIRCIO";
+                pepDob = "1985-08-20";
+                if (dob !== pepDob) {
+                    esHomonimo = true;
+                }
+            } else if (nombreNormalizado.includes("JUAN PEREZ") || palabrasComprador.includes("PEREZ")) {
+                tieneAlerta = true;
+                pepNombre = "JUAN PEREZ";
+                pepDob = "1975-04-12";
+                if (dob !== pepDob) {
+                    esHomonimo = true;
+                }
+            } else if (nombreNormalizado.includes("FANTASMA")) {
+                tieneAlerta = true;
+                pepNombre = "COMERCIALIZADORA FANTASMA SA DE CV";
+                pepDob = "N/A";
+            }
+            
+            if (!tieneAlerta) {
                 writeLog('log-node-c-clean', 'osint', { buyer: buyer });
                 await new Promise(r => setTimeout(r, 800));
                 updateNodeState('node-c', 'success');
@@ -1318,7 +1384,7 @@
                 
                 endSimulation(true);
             } 
-            else if (currentPreset === 'fp') {
+            else if (esHomonimo || (dob !== pepDob && pepDob !== "N/A")) {
                 writeLog('log-node-c-fp-alert', 'osint');
                 writeLog('log-node-c-fp-diag', 'osint');
                 await new Promise(r => setTimeout(r, 1000));
@@ -1339,9 +1405,16 @@
                 document.getElementById('hitl-buyer').innerText = buyer;
                 document.getElementById('hitl-dob').innerText = dob;
                 
+                // Actualizar los datos del modal dinámicamente según la homonimia encontrada
+                const hitlModalEl = document.getElementById('hitl-modal');
+                if (hitlModalEl) {
+                    const dobEl = hitlModalEl.querySelector('.text-red-400');
+                    if (dobEl) dobEl.innerText = `${pepDob} (${pepNombre})`;
+                }
+                
                 showHITLModal(true);
             } 
-            else if (currentPreset === 'true') {
+            else {
                 writeLog('log-node-c-true-alert', 'osint');
                 writeLog('log-node-c-true-match', 'osint', { buyer: buyer, dob: dob });
                 await new Promise(r => setTimeout(r, 1000));
