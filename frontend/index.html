@@ -509,7 +509,7 @@
             clean: {
                 buyer: "JUAN PEREZ GARCIA",
                 dob: "1985-10-12",
-                doc: "MX-772849",
+                doc: "G77284912",
                 nat: "MEXICANA",
                 amount: 1200000,
                 file: "cliente_limpio.pdf"
@@ -517,7 +517,7 @@
             fp: {
                 buyer: "CARLOS AVILA DIRCIO",
                 dob: "1992-07-14",
-                doc: "MX-556677",
+                doc: "N55667789",
                 nat: "MEXICANA",
                 amount: 5000000,
                 file: "solicitud_sat.pdf"
@@ -525,7 +525,7 @@
             true: {
                 buyer: "JOSÉ CRISTIAN AVILA DIRCIO",
                 dob: "1980-05-15",
-                doc: "MX-998877",
+                doc: "G99887711",
                 nat: "MEXICANA",
                 amount: 8500000,
                 file: "empresa_fantasma.pdf"
@@ -612,10 +612,34 @@
             handleFiles(files);
         }
 
-        function handleFiles(files) {
+        async function handleFiles(files) {
             if (files.length === 0) return;
             const file = files[0];
             const name = file.name.toLowerCase();
+
+            document.getElementById('drag-title').innerText = "Cargando archivo...";
+            document.getElementById('drag-filename').innerText = `${file.name}`;
+
+            if (connectionMode === 'live') {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    writeLog(`[LIVE-API] Subiendo archivo '${file.name}' al servidor para análisis dinámico...`, 'system');
+                    const response = await fetch('http://localhost:8000/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (response.ok) {
+                        writeLog(`[LIVE-API] Archivo '${file.name}' subido con éxito al servidor.`, 'system');
+                    } else {
+                        writeLog(`[LIVE-API] Advertencia: Código de error al subir archivo al servidor.`, 'error');
+                    }
+                } catch (err) {
+                    writeLog(`[LIVE-API] Error de red al subir archivo: ${err.message}`, 'error');
+                }
+            }
 
             document.getElementById('drag-title').innerText = "Archivo cargado correctamente";
             document.getElementById('drag-filename').innerText = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
@@ -630,10 +654,16 @@
             } else if (name.includes('fantasma') || name.includes('cristian') || name.includes('sanction')) {
                 selectPreset('true');
             } else {
-                // Default clean
-                selectPreset('clean');
+                // Archivo personalizado: Desmarcar presets
+                currentPreset = 'custom';
+                document.querySelectorAll('[id^="preset-"]').forEach(btn => {
+                    btn.classList.remove('border-white/20');
+                    btn.classList.add('border-white/5');
+                });
+                
+                // Actualizar solo el nombre del archivo, dejar los campos del formulario libres para edición
                 document.getElementById('input-file-name').value = file.name;
-                writeLog(`[EXTRACTOR-AI] Se cargó un archivo personalizado. Procesando metadatos por defecto.`);
+                writeLog(`[EXTRACTOR-AI] Se cargó un archivo personalizado ('${file.name}'). Modifique los campos del formulario si lo desea.`);
             }
         }
 
@@ -783,8 +813,47 @@
             
             updateNodeState('node-c', 'active');
             
-            // Decisión según preset
-            if (currentPreset === 'clean') {
+            // Decisión dinámica en base a los inputs del usuario (Sandbox)
+            const nombreNormalizado = buyer.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            const palabrasComprador = nombreNormalizado.split(/\s+/).filter(w => w.length > 0);
+            
+            let tieneAlerta = false;
+            let esHomonimo = false;
+            let pepNombre = "JOSÉ CRISTIAN AVILA DIRCIO";
+            let pepDob = "1980-05-15";
+            
+            // Buscar coincidencias dinámicamente con PEPs
+            const pepSurnames = ["AVILA", "DIRCIO"];
+            const hasPepSurname = pepSurnames.some(surname => palabrasComprador.includes(surname));
+            
+            if (nombreNormalizado.includes("JOSE CRISTIAN AVILA DIRCIO")) {
+                tieneAlerta = true;
+                pepNombre = "JOSÉ CRISTIAN AVILA DIRCIO";
+                pepDob = "1980-05-15";
+                if (dob !== pepDob) {
+                    esHomonimo = true;
+                }
+            } else if (hasPepSurname) {
+                tieneAlerta = true;
+                pepNombre = "JOSÉ CRISTIAN AVILA DIRCIO";
+                pepDob = "1980-05-15";
+                if (dob !== pepDob) {
+                    esHomonimo = true;
+                }
+            } else if (nombreNormalizado.includes("JUAN PEREZ") || palabrasComprador.includes("PEREZ")) {
+                tieneAlerta = true;
+                pepNombre = "JUAN PEREZ";
+                pepDob = "1975-04-12";
+                if (dob !== pepDob) {
+                    esHomonimo = true;
+                }
+            } else if (nombreNormalizado.includes("FANTASMA")) {
+                tieneAlerta = true;
+                pepNombre = "COMERCIALIZADORA FANTASMA SA DE CV";
+                pepDob = "N/A";
+            }
+            
+            if (!tieneAlerta) {
                 writeLog(`[CrewAI] Búsqueda limpia. No se localizó a '${buyer}' en bases de datos de OFAC, PEP o SAT Art. 69-B.`, 'osint');
                 await new Promise(r => setTimeout(r, 800));
                 updateNodeState('node-c', 'success');
@@ -807,11 +876,11 @@
                 
                 endSimulation(true);
             } 
-            else if (currentPreset === 'fp') {
-                writeLog(`[CrewAI] Alerta en OSINT: Apellidos coinciden con PEP de alto riesgo: JOSÉ CRISTIAN AVILA DIRCIO.`, 'osint');
+            else if (esHomonimo || dob !== pepDob) {
+                writeLog(`[CrewAI] Alerta en OSINT: Apellidos coinciden con PEP de alto riesgo: ${pepNombre}.`, 'osint');
                 writeLog(`[CrewAI] Realizando diagnóstico de homonimia y falsos positivos biométricos...`, 'osint');
                 await new Promise(r => setTimeout(r, 1000));
-                writeLog(`[CrewAI] Alerta: Mismo apellido, fecha de nacimiento difiere (Pasaporte: ${dob} vs PEP: 1980-05-15).`, 'osint');
+                writeLog(`[CrewAI] Alerta: Mismo apellido, fecha de nacimiento difiere (Pasaporte: ${dob} vs PEP: ${pepDob}).`, 'osint');
                 writeLog(`[CrewAI] Clasificado como: POSIBLE_HOMONIMO_PEP. Requiere resolución humana de cumplimiento.`, 'osint');
                 
                 updateNodeState('node-c', 'success');
@@ -828,9 +897,16 @@
                 document.getElementById('hitl-buyer').innerText = buyer;
                 document.getElementById('hitl-dob').innerText = dob;
                 
+                // Actualizar los datos del modal dinámicamente según la homonimia encontrada
+                const hitlModalEl = document.getElementById('hitl-modal');
+                if (hitlModalEl) {
+                    const dobEl = hitlModalEl.querySelector('.text-red-400');
+                    if (dobEl) dobEl.innerText = `${pepDob} (${pepNombre})`;
+                }
+                
                 showHITLModal(true);
             } 
-            else if (currentPreset === 'true') {
+            else {
                 writeLog(`[CrewAI] ALERTA CRÍTICA: Localizado en listas negras gubernamentales (UIF / Lista de Personas Bloqueadas).`, 'osint');
                 writeLog(`[CrewAI] Coincidencia exacta del 100% en nombre ("${buyer}") y fecha de nacimiento (${dob}).`, 'osint');
                 await new Promise(r => setTimeout(r, 1000));

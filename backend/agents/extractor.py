@@ -139,7 +139,7 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
             return EntidadesExtraidas(
                 nombre_completo="JUAN PEREZ GARCIA",
                 fecha_nacimiento="1985-10-12",
-                numero_documento="MX-772849",
+                numero_documento="G77284912",
                 nacionalidad="MEXICO",
                 tipo_documento="Pasaporte"
             )
@@ -147,7 +147,7 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
             return EntidadesExtraidas(
                 nombre_completo="CARLOS AVILA DIRCIO",
                 fecha_nacimiento="1992-07-14",
-                numero_documento="MX-556677",
+                numero_documento="N55667789",
                 nacionalidad="MEXICO",
                 tipo_documento="Pasaporte"
             )
@@ -155,7 +155,7 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
             return EntidadesExtraidas(
                 nombre_completo="COMERCIALIZADORA FANTASMA SA DE CV",
                 fecha_nacimiento="NO_DETECTADO",
-                numero_documento="MX-998877",
+                numero_documento="G99887711",
                 nacionalidad="MEXICO",
                 tipo_documento="Acta Constitutiva"
             )
@@ -164,7 +164,7 @@ def ejecutar_extraccion(pdf_path: str) -> EntidadesExtraidas:
             return EntidadesExtraidas(
                 nombre_completo="JUAN PEREZ",
                 fecha_nacimiento="1975-04-12",
-                numero_documento="MX-998877",
+                numero_documento="G99887711",
                 nacionalidad="MEXICO",
                 tipo_documento="Pasaporte"
             )

@@ -14,7 +14,7 @@ LISTAS_RIESGO_MEXICO = {
         "motivo": "Persona Expuesta Politicamente (PEP) - Operaciones con Recursos de Procedencia Ilicita",
         "nivel_riesgo": "CRITICO",
         "accion_requerida": "CONGELAR_CUENTAS_AVISO_CNBV",
-        "fecha_nacimiento": "1985-08-20",
+        "fecha_nacimiento": "1980-05-15",
         "nacionalidad": "MEXICANA",
         "gravedad": "CRITICO"
     },
@@ -64,21 +64,28 @@ def consultar_listas_nacionales(nombre_entidad: str) -> dict:
         
     # Caso 2: Falso Positivo (Homonimia para la demostracion)
     for nombre_sancionado, datos in LISTAS_RIESGO_MEXICO.items():
-        partes_nombre_malo = nombre_sancionado.split()
-        if len(partes_nombre_malo) >= 2:
-            apellido_sancionado = partes_nombre_malo[-2] + " " + partes_nombre_malo[-1]
+        partes_sancionado = nombre_sancionado.split()
+        if len(partes_sancionado) >= 2:
+            apellidos_sancionados = partes_sancionado[-2:] if len(partes_sancionado) >= 3 else [partes_sancionado[-1]]
+            apellidos_sancionados = [eliminar_acentos(ap).upper() for ap in apellidos_sancionados]
             
-            if apellido_sancionado in nombre_normalizado:
-                logger.warning(f"Posible homonimo detectado. El usuario comparte apellidos con PEP: {apellido_sancionado}")
+            palabras_comprador = [eliminar_acentos(p).upper() for p in nombre_normalizado.split()]
+            
+            coincidencias = [ap for ap in apellidos_sancionados if ap in palabras_comprador]
+            
+            if coincidencias:
+                logger.warning(f"Posible homonimo detectado. El usuario comparte apellidos con PEP: {coincidencias}")
+                detalles = datos.copy()
+                detalles.update({
+                    "institucion": "SISTEMA_INTERNO_ESCROWGUARD",
+                    "motivo": f"Apellidos coinciden con entidad de alto riesgo ({nombre_sancionado}).",
+                    "nivel_riesgo": "MEDIO",
+                    "accion_requerida": "REQUIERE_DESBLOQUEO_OFICIAL_CUMPLIMIENTO"
+                })
                 return {
                     "estado_pld": "RETENIDO_EN_GARANTIA",
                     "tipo_alerta": "POSIBLE_HOMONIMO_PEP",
-                    "detalles_institucion": {
-                        "institucion": "SISTEMA_INTERNO_ESCROWGUARD",
-                        "motivo": f"Apellidos coinciden con entidad de alto riesgo ({nombre_sancionado}).",
-                        "nivel_riesgo": "MEDIO",
-                        "accion_requerida": "REQUIERE_DESBLOQUEO_OFICIAL_CUMPLIMIENTO"
-                    }
+                    "detalles_institucion": detalles
                 }
             
     # Caso 3: Usuario limpio
@@ -110,12 +117,16 @@ class SanctionService:
         if nombre_normalizado in LISTAS_RIESGO_MEXICO:
             return LISTAS_RIESGO_MEXICO[nombre_normalizado]
         
-        # También buscar si coincide como homónimo para retornar datos mock de la sanción simulada
         for nombre_sancionado, datos in LISTAS_RIESGO_MEXICO.items():
-            partes_nombre_malo = nombre_sancionado.split()
-            if len(partes_nombre_malo) >= 2:
-                apellido_sancionado = partes_nombre_malo[-2] + " " + partes_nombre_malo[-1]
-                if apellido_sancionado in nombre_normalizado:
+            partes_sancionado = nombre_sancionado.split()
+            if len(partes_sancionado) >= 2:
+                apellidos_sancionados = partes_sancionado[-2:] if len(partes_sancionado) >= 3 else [partes_sancionado[-1]]
+                apellidos_sancionados = [eliminar_acentos(ap).upper() for ap in apellidos_sancionados]
+                
+                palabras_comprador = [eliminar_acentos(p).upper() for p in nombre_normalizado.split()]
+                
+                coincidencias = [ap for ap in apellidos_sancionados if ap in palabras_comprador]
+                if coincidencias:
                     return datos
         
         return None
